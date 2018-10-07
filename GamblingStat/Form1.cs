@@ -12,7 +12,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static LanguageExt.Prelude;
 
 namespace GamblingStat
 {
@@ -60,7 +59,7 @@ namespace GamblingStat
                 new KeyValueModel() { Key = _tigerText, Value = _tigerText }
             };
 
-            topPredictionModeComboBox.SelectedIndex = 4;
+            topPredictionModeComboBox.SelectedIndex = 1;
 
             winCountNumeric.Maximum = lookBehideNumeric.Value;
         }
@@ -155,7 +154,8 @@ namespace GamblingStat
             topPredictionModelBindingSource.DataSource = _predictionResults
                 .Where(criteria.selected)
                 .OrderByDescending(p => p.WinRate)
-                .ThenBy(p => p.WrongCount);
+                .ThenBy(p => p.WrongCount)
+                .ThenBy(p => p.AlgorithmType);
 
             //topPredictionModelBindingSource1.DataSource = _predictionResults
             //    .Where(criteria.notSelected)
@@ -191,20 +191,22 @@ namespace GamblingStat
                 ))
                 .ToList();
 
-            var winCount = (int)winCountNumeric.Value;
-            if(winCount > _scores.Count)
-            {
-                winCount = _scores.Count - 3;
-            }
+            //var winCount = (int)winCountNumeric.Value;
+            //if(winCount > _scores.Count)
+            //{
+            //    winCount = _scores.Count - 3;
+            //}
 
-            Func<IEnumerable<Option<Result>>, bool> onlyWinByLimit
-                = x => x.Where(r => r.IsSome).TakeWhile(r => r == Services.Domain.Result.Win).Count() == winCount;
+            //Func<IEnumerable<Option<Result>>, bool> onlyWinByLimit
+            //    = x => x.Where(r => r.IsSome).TakeWhile(r => r == Services.Domain.Result.Win).Count() == winCount;
 
-            Func<IEnumerable<Option<Result>>, bool> onlyAllWin
-                = x => x.Where(r => r.IsSome).All(r => r == Services.Domain.Result.Win);
+            //Func<IEnumerable<Option<Result>>, bool> onlyAllWin
+            //    = x => x.Where(r => r.IsSome).All(r => r == Services.Domain.Result.Win);
 
-            var gameStates2 = predictionResults.SelectMany(pr => pr.gss.Select(x => x.Predictions),
-                (pr, p) => (pr, predictionName: p.Keys.HeadOrNone(), predictions: p.Select(x => x.Value)));
+            //var gsTest = predictionResults.SelectMany(pr => pr.gss.Where(p => p.Predictions.Any()).Select(x => x.Predictions));
+
+            var gameStates2 = predictionResults.SelectMany(pr => pr.gs.Predictions,
+                (pr, p) => (pr, prediction: p.Map(x => x.Item2)));
 
             //var predictionResultByWinLimit = gameStates2
             //    .Where(gs => gs.predictions.Any() && onlyWinByLimit(gs.predictions.Select(p => p.Result)))
@@ -228,11 +230,11 @@ namespace GamblingStat
             //    .ToList();
 
             var predictionResults2 = gameStates2
-                .Where(gs => gs.predictions.Any(p => p.Name != Constants.MappingTablePredctionName))
+                .Where(gs => gs.prediction.Name != Constants.MappingTablePredctionName)
                 .Select(pr =>
                 (
-                    ps: pr.predictions.Last().Score,
-                    stat: pr.pr.stat.PredictionStats.Find(pr.predictionName.IfNone(string.Empty)).IfNone(new PredictionStat()),
+                    ps: pr.prediction.Score,
+                    stat: pr.pr.stat.PredictionStats[pr.prediction.Name],
                     mv: pr.pr.stat.MappingValue
                 ));
 
@@ -242,9 +244,9 @@ namespace GamblingStat
         }
 
         private IEnumerable<PredictionModel> Map(
-            IEnumerable<(Option<Score> ps, PredictionStat stat, int mv)> list)
+            IEnumerable<(Score ps, PredictionStat stat, int mv)> list)
         {
-            return list.Where(pr => pr.ps.IsSome)
+            return list
                 .Where(pr => pr.stat.Wrong3AndMoreCount == 0
                     //|| _predictionResults.Any(pr1 => pr1.MappingValue == pr.mv
                     //    && pr1.AlgorithmType == pr.stat.Name

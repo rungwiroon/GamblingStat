@@ -19,23 +19,28 @@ namespace Services.Predictors
 
             var sameDiffPredictResult2 = Option<Result>.Some(Result.Win);
             if (index > 3)
-                sameDiffPredictResult2 = gameStates.ElementAt(index - 2).Predictions[Constants.SameDiffPredictionName].Result;
+                sameDiffPredictResult2 = gameStates.ElementAt(index - 2).Predictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result);
 
             var score = from sdpr1 in sameDiffPredictResult2
-                        from sdpr2 in gameStates.ElementAt(index - 1).Predictions[Constants.SameDiffPredictionName].Result
-                        from sdps in currentState.Predictions[Constants.SameDiffPredictionName].Score
+                        from sdpr2 in gameStates.ElementAt(index - 1).Predictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result)
+                        from sdps in currentState.Predictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score)
                         select (sdpr1 == Result.Lose && sdpr2 == Result.Lose)
                         ? sdps
                         : sdps == Score.Dragon ? Score.Tiger : Score.Dragon;
 
-            var newGameState = new GameState
-            (
-                index,
-                currentState.ActualScore,
-                currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
-                    .Append((Constants.Anti12PredictionName, score))
-                    .Append((Constants.InvertedAnti12PredictionName, score.Map(Helper.InvertScoreMapper)))
-            );
+            var newGameState = currentState;
+
+            score.IfSome(x =>
+            {
+                newGameState = new GameState
+                (
+                    index,
+                    currentState.ActualScore,
+                    currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
+                        .Append((Constants.Anti12PredictionName, x))
+                        .Append((Constants.InvertedAnti12PredictionName, Helper.InvertScoreMapper(x)))
+                );
+            });
 
             //Debug.WriteLine("Anti12\t" + newGameState);
 

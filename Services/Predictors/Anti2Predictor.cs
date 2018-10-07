@@ -16,20 +16,25 @@ namespace Services.Predictors
             if (index <= 2)
                 return currentState;
 
-            var score = from x in gameStates.ElementAt(index - 1).Predictions[Constants.SameDiffPredictionName].Result
-                        from y in currentState.Predictions[Constants.SameDiffPredictionName].Score
-                        select x == Result.Lose
-                        ? y == Score.Dragon ? Score.Tiger : Score.Dragon
-                        : y;
+            var score = from r in gameStates.ElementAt(index - 1).Predictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result)
+                        from s in currentState.Predictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score)
+                        select r == Result.Lose
+                        ? s == Score.Dragon ? Score.Tiger : Score.Dragon
+                        : s;
 
-            var newGameState = new GameState
-            (
-                index,
-                currentState.ActualScore,
-                currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
-                    .Append((Constants.Anti2PredictionName, score))
-                    .Append((Constants.InvertedAnti2PredictionName, score.Map(Helper.InvertScoreMapper)))
-            );
+            var newGameState = currentState;
+
+            score.IfSome(x =>
+            {
+                newGameState = new GameState
+                (
+                    index,
+                    currentState.ActualScore,
+                    currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
+                        .Append((Constants.Anti2PredictionName, x))
+                        .Append((Constants.InvertedAnti2PredictionName, Helper.InvertScoreMapper(x)))
+                );
+            });
 
             //Debug.WriteLine("Anti2\t" + newGameState);
 

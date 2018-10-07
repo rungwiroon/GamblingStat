@@ -16,20 +16,34 @@ namespace Services.Predictors
             if (index <= 1)
                 return currentState;
 
-            var score = from r in gameStates.ElementAt(index - 1).Predictions[Constants.MappingTablePredctionName].Result
-                        from ps in currentState.Predictions[Constants.MappingTablePredctionName].Score
+            var score = from r in gameStates.ElementAt(index - 1).Predictions.Find(Constants.MappingTablePredctionName).Bind(x => x.Result)
+                        from s in currentState.Predictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score)
                         select r == Result.Lose 
-                        ? (ps == Score.Tiger ? Score.Dragon : Score.Tiger) 
-                        : ps;
+                        ? (s == Score.Tiger ? Score.Dragon : Score.Tiger) 
+                        : s;
 
-            var newState = new GameState
-            (
-                index,
-                currentState.ActualScore,
-                currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
-                    .Append((Constants.SameDiffPredictionName, score))
-                    .Append((Constants.InvertedSameDiffPredictionName, score.Map(Helper.InvertScoreMapper)))
-            );
+            GameState newState = currentState;
+
+            score.IfSome(x =>
+            {
+                newState = new GameState
+                (
+                    index,
+                    currentState.ActualScore,
+                    currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
+                        .Append((Constants.SameDiffPredictionName, x))
+                        .Append((Constants.InvertedSameDiffPredictionName, Helper.InvertScoreMapper(x)))
+                );
+            });
+
+            //var newState = new GameState
+            //(
+            //    index,
+            //    currentState.ActualScore,
+            //    currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
+            //        .Append((Constants.SameDiffPredictionName, score))
+            //        .Append((Constants.InvertedSameDiffPredictionName, score.Map(Helper.InvertScoreMapper)))
+            //);
 
             //Debug.WriteLine(newState);
 

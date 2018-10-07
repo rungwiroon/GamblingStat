@@ -24,7 +24,7 @@ namespace Services
         {
             var scoresWithNextScore = scores.Select(s => Option<Score>.Some(s)).Concat(new Option<Score>[] { Option<Score>.None });
 
-            var result = Enumerable.Range(0, (int)Math.Pow(2, tableSize - 1))
+            var result = Enumerable.Range(0, (int)Math.Pow(2, tableSize))
                 .Select(x => (gs: Predict3(scoresWithNextScore, MapToScores(x, tableSize)), mv: x))
                 .Select(x => (gameState: x.gs, stat: StatService.Calculate(x.gs.Where(gs => gs.ActualScore.IsSome), x.mv)));
 

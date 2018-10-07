@@ -7,36 +7,6 @@ using System.Text;
 
 namespace Services.Domain
 {
-    public class PredictionScore
-    {
-        public string Name { get; set; }
-
-        public Option<Score> Score { get; private set; }
-
-        public Option<Result> Result { get; private set; }
-
-        //public Option<Score> InvertedScore { get; private set; }
-
-        //public Option<Result> InvertedResult { get; private set; }
-
-        //private static Func<Score, Score> invertScoreMapper => s => s == Domain.Score.Dragon ? Domain.Score.Tiger : Domain.Score.Dragon;
-        //private static Func<Result, Result> invertResultMapper => r => r == Domain.Result.Win ? Domain.Result.Lose : Domain.Result.Win;
-
-        public PredictionScore(string name, Option<Score> score, Option<Result> result)
-        {
-            Name = name;
-            Score = score;
-            Result = result;
-            //InvertedScore = Score.Map(invertScoreMapper);
-            //InvertedResult = Result.Map(invertResultMapper);
-        }
-
-        public override string ToString()
-        {
-            return $"{Name}:{Score.Map(s => s == Domain.Score.Dragon ? "D" : "T").IfNone(string.Empty)}:{Result}";
-        }
-    }
-
     public class GameState
     {
         private Func<bool, Result> resultMapper => b => b ? Result.Win : Result.Lose;
@@ -46,17 +16,6 @@ namespace Services.Domain
         public int Index { get; private set; }
 
         public Option<Score> ActualScore { get; private set; }
-
-        //public Option<Score> MappingTablePredictScore { get; private set; }
-
-        //public Option<Result> MappingTablePredictResult
-        //{
-        //    get
-        //    {
-        //        return MappingTablePredictScore.Map(ps => ActualScore == ps)
-        //            .Map(resultMapper);
-        //    }
-        //}
 
         public Map<string, PredictionScore> Predictions { get; private set; }
 
@@ -72,7 +31,8 @@ namespace Services.Domain
             var prediction = mappingTableScore.Map(x =>
             (
                 Constants.MappingTablePredctionName,
-                new PredictionScore(Constants.MappingTablePredctionName, x, resultMapper(x == ActualScore))
+                new PredictionScore(
+                    Constants.MappingTablePredctionName, x, ActualScore.Map(s => resultMapper(s == ActualScore)))
             ));
 
             Predictions = new Map<string, PredictionScore>(prediction);
@@ -81,11 +41,12 @@ namespace Services.Domain
         public GameState(
             int index,
             Option<Score> actualScore,
-            IEnumerable<(string name, Option<Score> score)> predictionScores)
+            IEnumerable<(string name, Score score)> predictionScores)
             : this(index, actualScore)
         {
             var predictions = Predictions.Select(x => x.Value)
-                .Concat(predictionScores.Select(ps => new PredictionScore(ps.name, ps.score, resultMapper(ps.score == ActualScore))));
+                .Concat(predictionScores.Select(ps => 
+                    new PredictionScore(ps.name, ps.score, ActualScore.Map(s => resultMapper(ps.score == s)))));
 
             Predictions = new Map<string, PredictionScore>(predictions.Select(p => (p.Name, p)));
         }
