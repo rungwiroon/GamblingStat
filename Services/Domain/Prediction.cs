@@ -22,7 +22,7 @@ namespace Services.Domain
 
         public override string ToString()
         {
-            var score = Score == Domain.Score.Dragon ? "D" : "T";
+            var score = Score == Score.Dragon ? "D" : "T";
             return $"{score}-{Result.Match(x => x.ToString(), () => "N/A")}";
         }
     }

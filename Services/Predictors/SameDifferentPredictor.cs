@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using LanguageExt;
 using Services.Domain;
 
 namespace Services.Predictors
@@ -24,9 +24,9 @@ namespace Services.Predictors
 
             GameState newState = currentState;
 
-            score.IfSome(x =>
+            return score.Match(x =>
             {
-                newState = new GameState
+                return new GameState
                 (
                     index,
                     currentState.ActualScore,
@@ -34,20 +34,7 @@ namespace Services.Predictors
                         .Append((Constants.SameDiffPredictionName, x))
                         .Append((Constants.InvertedSameDiffPredictionName, Helper.InvertScoreMapper(x)))
                 );
-            });
-
-            //var newState = new GameState
-            //(
-            //    index,
-            //    currentState.ActualScore,
-            //    currentState.Predictions.Select(p => (p.Value.Name, p.Value.Score))
-            //        .Append((Constants.SameDiffPredictionName, score))
-            //        .Append((Constants.InvertedSameDiffPredictionName, score.Map(Helper.InvertScoreMapper)))
-            //);
-
-            //Debug.WriteLine(newState);
-
-            return newState;
+            }, () => currentState);
         }
     }
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using static LanguageExt.Prelude;
 
 namespace Services
 {
@@ -22,7 +23,7 @@ namespace Services
             int tableSize, 
             int predictionLimit = int.MaxValue)
         {
-            var scoresWithNextScore = scores.Select(s => Option<Score>.Some(s)).Concat(new Option<Score>[] { Option<Score>.None });
+            var scoresWithNextScore = scores.Select(s => Some(s)).Append(None);
 
             var result = Enumerable.Range(0, (int)Math.Pow(2, tableSize))
                 .Select(x => (gs: Predict3(scoresWithNextScore, MapToScores(x, tableSize)), mv: x))
@@ -33,16 +34,16 @@ namespace Services
 
         public IEnumerable<GameState> Predict2(IEnumerable<Score> actualScores, IEnumerable<Score> mappingScores)
         {
-            var scoresWithNextScore = actualScores.Select(s => Option<Score>.Some(s))
-                .Concat(new Option<Score>[] { Option<Score>.None });
+            var scoresWithNextScore = actualScores.Select(s => Some(s))
+                .Concat(new Option<Score>[] { None });
 
             return Predict3(scoresWithNextScore, mappingScores);
         }
 
         public IEnumerable<GameState> Predict2(IEnumerable<Score> actualScores, int mappingValue, int tableSize)
         {
-            var scoresWithNextScore = actualScores.Select(s => Option<Score>.Some(s))
-                .Concat(new Option<Score>[] { Option<Score>.None });
+            var scoresWithNextScore = actualScores.Select(s => Some(s))
+                .Concat(new Option<Score>[] { None });
 
             return Predict3(scoresWithNextScore, MapToScores(mappingValue, tableSize));
         }
@@ -69,7 +70,7 @@ namespace Services
 
         private IEnumerable<Option<Score>> InfiniteScores(IEnumerable<Score> scores)
         {
-            yield return Option<Score>.None;
+            yield return None;
 
             while (true)
             {

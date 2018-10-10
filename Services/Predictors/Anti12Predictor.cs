@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using LanguageExt;
@@ -19,7 +18,8 @@ namespace Services.Predictors
 
             var sameDiffPredictResult2 = Option<Result>.Some(Result.Win);
             if (index > 3)
-                sameDiffPredictResult2 = gameStates.ElementAt(index - 2).Predictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result);
+                sameDiffPredictResult2 = gameStates.ElementAt(index - 2).Predictions
+                    .Find(Constants.SameDiffPredictionName).Bind(x => x.Result);
 
             var score = from sdpr1 in sameDiffPredictResult2
                         from sdpr2 in gameStates.ElementAt(index - 1).Predictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result)
@@ -28,11 +28,9 @@ namespace Services.Predictors
                         ? sdps
                         : sdps == Score.Dragon ? Score.Tiger : Score.Dragon;
 
-            var newGameState = currentState;
-
-            score.IfSome(x =>
+            return score.Match(x =>
             {
-                newGameState = new GameState
+                return new GameState
                 (
                     index,
                     currentState.ActualScore,
@@ -40,11 +38,7 @@ namespace Services.Predictors
                         .Append((Constants.Anti12PredictionName, x))
                         .Append((Constants.InvertedAnti12PredictionName, Helper.InvertScoreMapper(x)))
                 );
-            });
-
-            //Debug.WriteLine("Anti12\t" + newGameState);
-
-            return newGameState;
+            }, () => currentState);
         }
     }
 }

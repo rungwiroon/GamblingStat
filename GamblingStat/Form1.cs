@@ -1,6 +1,7 @@
 ﻿using GamblingStat.Models;
 using GamblingStat.Properties;
 using LanguageExt;
+using static LanguageExt.Prelude;
 using Services;
 using Services.Domain;
 using Services.Predictors;
@@ -182,7 +183,8 @@ namespace GamblingStat
             var predictionResults = _predictionService.Predict(
                 _scores
                 .Skip(_scores.Count - (int)lookBehideNumeric.Value)
-                .Select(s => s.ActualScore == _tigerText ? Score.Tiger : Score.Dragon), Settings.Default.MappingTableSize)
+                .Select(s => s.ActualScore == _tigerText ? Score.Tiger : Score.Dragon),
+                Settings.Default.MappingTableSize)
                 .Select(pr => 
                 (
                     gss: pr.gameStates.Reverse().Skip(1).ToList(),

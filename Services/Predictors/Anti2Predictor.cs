@@ -1,7 +1,7 @@
-﻿using Services.Domain;
+﻿using LanguageExt;
+using Services.Domain;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -22,11 +22,9 @@ namespace Services.Predictors
                         ? s == Score.Dragon ? Score.Tiger : Score.Dragon
                         : s;
 
-            var newGameState = currentState;
-
-            score.IfSome(x =>
+            return score.Match(x =>
             {
-                newGameState = new GameState
+                return new GameState
                 (
                     index,
                     currentState.ActualScore,
@@ -34,11 +32,7 @@ namespace Services.Predictors
                         .Append((Constants.Anti2PredictionName, x))
                         .Append((Constants.InvertedAnti2PredictionName, Helper.InvertScoreMapper(x)))
                 );
-            });
-
-            //Debug.WriteLine("Anti2\t" + newGameState);
-
-            return newGameState;
+            }, () => currentState);
         }
     }
 }

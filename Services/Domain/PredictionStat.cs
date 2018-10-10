@@ -13,11 +13,6 @@ namespace Services.Domain
         public int Wrong3AndMoreCount { get; private set; }
         public int MaxConsecutiveWrong { get; private set; }
 
-        public PredictionStat()
-        {
-
-        }
-
         public PredictionStat(
             string name,
             int winRate, 

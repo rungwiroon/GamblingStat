@@ -10,8 +10,6 @@ namespace Services.Domain
     public class GameState
     {
         private Func<bool, Result> resultMapper => b => b ? Result.Win : Result.Lose;
-        private Func<Score, Score> invertScoreMapper => s => s == Score.Dragon ? Score.Tiger : Score.Dragon;
-        private Func<Result, Result> invertResultMapper => r => r == Result.Win ? Result.Lose : Result.Win;
 
         public int Index { get; private set; }
 
