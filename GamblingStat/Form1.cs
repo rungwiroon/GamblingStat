@@ -1,7 +1,6 @@
 ﻿using GamblingStat.Models;
 using GamblingStat.Properties;
 using LanguageExt;
-using static LanguageExt.Prelude;
 using Services;
 using Services.Domain;
 using Services.Predictors;
@@ -13,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LiveCharts;
+using LiveCharts.Wpf;
 
 namespace GamblingStat
 {
@@ -33,7 +34,9 @@ namespace GamblingStat
         private int _tigerPredictionPercentage = 0;
         private bool _predictionToggle = false;
 
-        public Form1()
+        private ChartValues<double> _chartValues = new ChartValues<double>();
+
+    public Form1()
         {
             InitializeComponent();
 
@@ -51,8 +54,6 @@ namespace GamblingStat
 
             _scores = new List<ScoreBoardModel>();
 
-            topPredictionModeComboBox.SelectedIndex = 0;
-
             keyValueModelBindingSource.DataSource = new List<KeyValueModel>()
             {
                 new KeyValueModel(),
@@ -63,6 +64,35 @@ namespace GamblingStat
             topPredictionModeComboBox.SelectedIndex = 1;
 
             winCountNumeric.Maximum = lookBehideNumeric.Value;
+
+            cartesianChart1.Series = new SeriesCollection
+            {
+                new LineSeries
+                {
+                    Title = "Win rate (%)",
+                    Values = _chartValues,
+                    LineSmoothness = 0,
+                    PointGeometrySize = 5
+                }
+            };
+
+            cartesianChart1.AxisX.Add(new Axis
+            {
+                LabelFormatter = value =>
+                {
+                    if (Math.Abs(value % 1) < double.Epsilon)
+                        return (value + 1).ToString("0");
+                    else
+                        return string.Empty;
+                }
+            });
+
+            cartesianChart1.AxisY.Add(new Axis
+            {
+                LabelFormatter = value => value.ToString("0"),
+                MaxValue = 105,
+                MinValue = 0
+            });
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -75,7 +105,7 @@ namespace GamblingStat
             if(dataGridView2.Columns[e.ColumnIndex].DataPropertyName == _selectedColumnName)
             {
                 dataGridView2.EndEdit();
-                UpdateDataSource();
+                UpdatePredictionDataSource();
             }
         }
 
@@ -115,7 +145,7 @@ namespace GamblingStat
             return (selectedCriteria, notSelectedCriteria);
         }
 
-        private void UpdateDataSource()
+        private void UpdatePredictionDataSource()
         {
             var criteria = GetPredictionCriteria();
 
@@ -129,10 +159,15 @@ namespace GamblingStat
             dragonPredictionButton.Text = $"Bet {_dragonText} : {_dragonPredictionPercentage}%";
             tigerPredictionButton.Text = $"Bet {_tigerText} : {_tigerPredictionPercentage}%";
 
-            var notSelectedPrediction = _predictionResults
-                .Where(criteria.notSelected)
-                .Select(p => p.PredictionScore);
+            topPredictionModelBindingSource.DataSource = _predictionResults
+                .Where(criteria.selected)
+                .OrderByDescending(p => p.WinRate)
+                .ThenBy(p => p.WrongCount)
+                .ThenBy(p => p.AlgorithmType);
+        }
 
+        private void UpdateGameScoreDataSource()
+        {
             var actualScores = _scores
                 .Select(s => s.ActualScore);
             actualDragonPercentageLabel.Text = CalculateScorePercentageString(_dragonText, actualScores);
@@ -143,25 +178,18 @@ namespace GamblingStat
             betDragonPercentageLabel.Text = CalculateScorePercentageString(_dragonText, betScores);
             betTigerPercentageLabel.Text = CalculateScorePercentageString(_tigerText, betScores);
 
-            
-            var betResults = _scores.Where(s => !string.IsNullOrEmpty(s.Result));
+            var betResults = _scores;
             betResults.Select((r, i) =>
             {
-                var betResults1 = betResults.Take(i + 1);
+                if (string.IsNullOrEmpty(_scores[i].BetScore))
+                    return r.WinRate;
+
+                var betResults1 = betResults.Take(i + 1).Where(r1 => !string.IsNullOrEmpty(r1.BetScore));
                 return r.WinRate = (int)(betResults1.Where(r1 => r1.Result == "W").Count() / (float)betResults1.Count() * 100);
             }).ToList();
-            
 
-            topPredictionModelBindingSource.DataSource = _predictionResults
-                .Where(criteria.selected)
-                .OrderByDescending(p => p.WinRate)
-                .ThenBy(p => p.WrongCount)
-                .ThenBy(p => p.AlgorithmType);
-
-            //topPredictionModelBindingSource1.DataSource = _predictionResults
-            //    .Where(criteria.notSelected)
-            //    .OrderByDescending(p => p.WinRate)
-            //    .ThenBy(p => p.WrongCount);
+            _chartValues.Clear();
+            _chartValues.AddRange(betResults.Select(r => r.WinRate ?? double.NaN));
         }
 
         private int CalculateScorePercentage(string score, IEnumerable<string> allScores)
@@ -241,8 +269,6 @@ namespace GamblingStat
                 ));
 
             _predictionResults = Map(predictionResults2).ToList();
-
-            UpdateDataSource();
         }
 
         private IEnumerable<PredictionModel> Map(
@@ -290,6 +316,8 @@ namespace GamblingStat
             scoreBoardModelBindingSource.ResetCurrentItem();
 
             Recalculate();
+            UpdatePredictionDataSource();
+            UpdateGameScoreDataSource();
 
             scoreBoardModelBindingSource.MoveLast();
 
@@ -312,7 +340,10 @@ namespace GamblingStat
                 return;
 
             scoreBoardModelBindingSource.RemoveAt(scoreBoardModelBindingSource.Count - 1);
+
             Recalculate();
+            UpdatePredictionDataSource();
+            UpdateGameScoreDataSource();
         }
 
         private void clearButton_Click(object sender, EventArgs e)
@@ -332,6 +363,8 @@ namespace GamblingStat
 
             _dragonPredictionPercentage = 0;
             _tigerPredictionPercentage = 0;
+
+            _chartValues.Clear();
         }
 
         private Color GetScoreColor(string score)
@@ -393,7 +426,11 @@ namespace GamblingStat
 
         private void topPredictionModeComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Recalculate();
+            if(_scores.Any())
+            {
+                Recalculate();
+                UpdatePredictionDataSource();
+            }
         }
 
         private void AddPredictionScore(string predictionScore)
@@ -468,6 +505,7 @@ namespace GamblingStat
 
             winCountNumeric.Maximum = lookBehideNumeric.Value;
             Recalculate();
+            UpdatePredictionDataSource();
 
             Cursor.Current = Cursors.Default;
         }
@@ -477,6 +515,7 @@ namespace GamblingStat
             Cursor.Current = Cursors.WaitCursor;
 
             Recalculate();
+            UpdatePredictionDataSource();
 
             Cursor.Current = Cursors.Default;
         }
