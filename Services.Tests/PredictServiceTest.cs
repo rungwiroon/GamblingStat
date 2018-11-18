@@ -147,10 +147,10 @@ namespace Services.Tests
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var predictResult = result.Last();
-            Assert.AreEqual(Score.Dragon, predictResult.Predictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score));
-            Assert.AreEqual(Score.Dragon, predictResult.Predictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score));
-            Assert.AreEqual(Score.Tiger, predictResult.Predictions.Find(Constants.Anti12PredictionName).Map(x => x.Score));
-            Assert.AreEqual(Score.Dragon, predictResult.Predictions.Find(Constants.Anti2PredictionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Tiger, predictResult.ScorePredictions.Find(Constants.Anti12PredictionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.Anti2PredictionName).Map(x => x.Score));
         }
 
         [TestMethod]
@@ -194,7 +194,7 @@ namespace Services.Tests
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var sdResult = result
-                    .Select(r => r.Predictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
+                    .Select(r => r.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
                     .Where(r => r.IsSome)
                     .Map(r => r.IfNone(Result.Lose));
 
@@ -246,7 +246,7 @@ namespace Services.Tests
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var sdResult = result
-                    .Select(r => r.Predictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
+                    .Select(r => r.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
                     .Where(r => r.IsSome)
                     .Map(r => r.IfNone(Result.Lose));
 
@@ -298,7 +298,7 @@ namespace Services.Tests
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var sdResult = result
-                    .Select(r => r.Predictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
+                    .Select(r => r.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
                     .Where(r => r.IsSome)
                     .Map(r => r.IfNone(Result.Lose));
 

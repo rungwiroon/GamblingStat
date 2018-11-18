@@ -11,17 +11,8 @@ namespace GamblingStat.Models
         public int No { get; set; }
         public string ActualScore { get; set; }
         public string BetScore { get; set; }
-        public string Result
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(ActualScore)
-                    || string.IsNullOrEmpty(BetScore))
-                    return string.Empty;
-
-                return ActualScore == BetScore ? "W" : "L";
-            }
-        }
+        public string Result { get; set; }
         public int? WinRate { get; set; }
+        public string DrTom { get; set; }
     }
 }

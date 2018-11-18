@@ -50,7 +50,6 @@
             this.dragonPredictionButton = new System.Windows.Forms.Button();
             this.tigerPredictionButton = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.Result = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clearButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.lookBehideNumeric = new System.Windows.Forms.NumericUpDown();
@@ -59,6 +58,8 @@
             this.winCountNumeric = new System.Windows.Forms.NumericUpDown();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.cartesianChart1 = new LiveCharts.WinForms.CartesianChart();
+            this.Result = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DrTom = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.predictionScoreDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.winRateDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.selectedDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -86,11 +87,13 @@
             // 
             // dragonButton
             // 
+            this.dragonButton.DataBindings.Add(new System.Windows.Forms.Binding("ForeColor", global::GamblingStat.Properties.Settings.Default, "DragonColor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.dragonButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.854546F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.dragonButton.ForeColor = System.Drawing.Color.Red;
-            this.dragonButton.Location = new System.Drawing.Point(16, 15);
+            this.dragonButton.ForeColor = global::GamblingStat.Properties.Settings.Default.DragonColor;
+            this.dragonButton.Location = new System.Drawing.Point(14, 14);
+            this.dragonButton.Margin = new System.Windows.Forms.Padding(4);
             this.dragonButton.Name = "dragonButton";
-            this.dragonButton.Size = new System.Drawing.Size(97, 32);
+            this.dragonButton.Size = new System.Drawing.Size(99, 39);
             this.dragonButton.TabIndex = 1;
             this.dragonButton.Text = "Dragon";
             this.dragonButton.UseVisualStyleBackColor = true;
@@ -98,11 +101,13 @@
             // 
             // tigerButton
             // 
+            this.tigerButton.DataBindings.Add(new System.Windows.Forms.Binding("ForeColor", global::GamblingStat.Properties.Settings.Default, "TigerColor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.tigerButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.854546F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.tigerButton.ForeColor = System.Drawing.Color.Blue;
-            this.tigerButton.Location = new System.Drawing.Point(127, 15);
+            this.tigerButton.ForeColor = global::GamblingStat.Properties.Settings.Default.TigerColor;
+            this.tigerButton.Location = new System.Drawing.Point(134, 15);
+            this.tigerButton.Margin = new System.Windows.Forms.Padding(4);
             this.tigerButton.Name = "tigerButton";
-            this.tigerButton.Size = new System.Drawing.Size(97, 32);
+            this.tigerButton.Size = new System.Drawing.Size(100, 39);
             this.tigerButton.TabIndex = 2;
             this.tigerButton.Text = "Tiger";
             this.tigerButton.UseVisualStyleBackColor = true;
@@ -110,9 +115,10 @@
             // 
             // undoButton
             // 
-            this.undoButton.Location = new System.Drawing.Point(238, 18);
+            this.undoButton.Location = new System.Drawing.Point(263, 18);
+            this.undoButton.Margin = new System.Windows.Forms.Padding(4);
             this.undoButton.Name = "undoButton";
-            this.undoButton.Size = new System.Drawing.Size(66, 27);
+            this.undoButton.Size = new System.Drawing.Size(69, 33);
             this.undoButton.TabIndex = 7;
             this.undoButton.Text = "Undo";
             this.undoButton.UseVisualStyleBackColor = true;
@@ -122,9 +128,10 @@
             // 
             this.actualTigerPercentageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.actualTigerPercentageLabel.AutoSize = true;
-            this.actualTigerPercentageLabel.Location = new System.Drawing.Point(206, 467);
+            this.actualTigerPercentageLabel.Location = new System.Drawing.Point(237, 562);
+            this.actualTigerPercentageLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.actualTigerPercentageLabel.Name = "actualTigerPercentageLabel";
-            this.actualTigerPercentageLabel.Size = new System.Drawing.Size(37, 13);
+            this.actualTigerPercentageLabel.Size = new System.Drawing.Size(49, 17);
             this.actualTigerPercentageLabel.TabIndex = 9;
             this.actualTigerPercentageLabel.Text = "T : 0%";
             // 
@@ -132,9 +139,10 @@
             // 
             this.actualDragonPercentageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.actualDragonPercentageLabel.AutoSize = true;
-            this.actualDragonPercentageLabel.Location = new System.Drawing.Point(113, 468);
+            this.actualDragonPercentageLabel.Location = new System.Drawing.Point(135, 563);
+            this.actualDragonPercentageLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.actualDragonPercentageLabel.Name = "actualDragonPercentageLabel";
-            this.actualDragonPercentageLabel.Size = new System.Drawing.Size(38, 13);
+            this.actualDragonPercentageLabel.Size = new System.Drawing.Size(50, 17);
             this.actualDragonPercentageLabel.TabIndex = 8;
             this.actualDragonPercentageLabel.Text = "D : 0%";
             // 
@@ -144,13 +152,15 @@
             this.topPredictionModeComboBox.FormattingEnabled = true;
             this.topPredictionModeComboBox.Items.AddRange(new object[] {
             "100%",
+            ">= 90%",
             ">= 80%",
             ">= 70%",
             ">= 60%",
             ">= 50%"});
-            this.topPredictionModeComboBox.Location = new System.Drawing.Point(358, 478);
+            this.topPredictionModeComboBox.Location = new System.Drawing.Point(407, 575);
+            this.topPredictionModeComboBox.Margin = new System.Windows.Forms.Padding(4);
             this.topPredictionModeComboBox.Name = "topPredictionModeComboBox";
-            this.topPredictionModeComboBox.Size = new System.Drawing.Size(92, 21);
+            this.topPredictionModeComboBox.Size = new System.Drawing.Size(80, 24);
             this.topPredictionModeComboBox.TabIndex = 15;
             this.topPredictionModeComboBox.SelectedIndexChanged += new System.EventHandler(this.topPredictionModeComboBox_SelectedIndexChanged);
             // 
@@ -169,9 +179,10 @@
             this.dataGridView2.DataSource = this.topPredictionModelBindingSource;
             this.dataGridView2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView2.Location = new System.Drawing.Point(0, 0);
+            this.dataGridView2.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.RowHeadersWidth = 30;
-            this.dataGridView2.Size = new System.Drawing.Size(216, 191);
+            this.dataGridView2.Size = new System.Drawing.Size(218, 234);
             this.dataGridView2.TabIndex = 12;
             this.dataGridView2.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView2_CellFormatting);
             // 
@@ -195,9 +206,10 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(18, 467);
+            this.label2.Location = new System.Drawing.Point(17, 562);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(68, 13);
+            this.label2.Size = new System.Drawing.Size(88, 17);
             this.label2.TabIndex = 16;
             this.label2.Text = "Actual Score";
             // 
@@ -205,9 +217,10 @@
             // 
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(18, 491);
+            this.label3.Location = new System.Drawing.Point(17, 591);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(54, 13);
+            this.label3.Size = new System.Drawing.Size(70, 17);
             this.label3.TabIndex = 17;
             this.label3.Text = "Bet Score";
             // 
@@ -215,9 +228,10 @@
             // 
             this.betTigerPercentageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.betTigerPercentageLabel.AutoSize = true;
-            this.betTigerPercentageLabel.Location = new System.Drawing.Point(206, 490);
+            this.betTigerPercentageLabel.Location = new System.Drawing.Point(237, 590);
+            this.betTigerPercentageLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.betTigerPercentageLabel.Name = "betTigerPercentageLabel";
-            this.betTigerPercentageLabel.Size = new System.Drawing.Size(37, 13);
+            this.betTigerPercentageLabel.Size = new System.Drawing.Size(49, 17);
             this.betTigerPercentageLabel.TabIndex = 19;
             this.betTigerPercentageLabel.Text = "T : 0%";
             // 
@@ -225,23 +239,26 @@
             // 
             this.betDragonPercentageLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.betDragonPercentageLabel.AutoSize = true;
-            this.betDragonPercentageLabel.Location = new System.Drawing.Point(113, 491);
+            this.betDragonPercentageLabel.Location = new System.Drawing.Point(135, 591);
+            this.betDragonPercentageLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.betDragonPercentageLabel.Name = "betDragonPercentageLabel";
-            this.betDragonPercentageLabel.Size = new System.Drawing.Size(38, 13);
+            this.betDragonPercentageLabel.Size = new System.Drawing.Size(50, 17);
             this.betDragonPercentageLabel.TabIndex = 18;
             this.betDragonPercentageLabel.Text = "D : 0%";
             // 
             // dragonPredictionButton
             // 
-            this.dragonPredictionButton.BackColor = System.Drawing.Color.Red;
+            this.dragonPredictionButton.BackColor = global::GamblingStat.Properties.Settings.Default.DragonColor;
+            this.dragonPredictionButton.DataBindings.Add(new System.Windows.Forms.Binding("BackColor", global::GamblingStat.Properties.Settings.Default, "DragonColor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.dragonPredictionButton.FlatAppearance.BorderSize = 4;
             this.dragonPredictionButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.dragonPredictionButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.dragonPredictionButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.818182F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.dragonPredictionButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.765218F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
             this.dragonPredictionButton.ForeColor = System.Drawing.Color.White;
-            this.dragonPredictionButton.Location = new System.Drawing.Point(319, 15);
+            this.dragonPredictionButton.Location = new System.Drawing.Point(358, 8);
+            this.dragonPredictionButton.Margin = new System.Windows.Forms.Padding(4);
             this.dragonPredictionButton.Name = "dragonPredictionButton";
-            this.dragonPredictionButton.Size = new System.Drawing.Size(96, 57);
+            this.dragonPredictionButton.Size = new System.Drawing.Size(93, 58);
             this.dragonPredictionButton.TabIndex = 20;
             this.dragonPredictionButton.Text = "Bet D : 0%";
             this.dragonPredictionButton.UseVisualStyleBackColor = false;
@@ -249,15 +266,17 @@
             // 
             // tigerPredictionButton
             // 
-            this.tigerPredictionButton.BackColor = System.Drawing.Color.Blue;
+            this.tigerPredictionButton.BackColor = global::GamblingStat.Properties.Settings.Default.TigerColor;
+            this.tigerPredictionButton.DataBindings.Add(new System.Windows.Forms.Binding("BackColor", global::GamblingStat.Properties.Settings.Default, "TigerColor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.tigerPredictionButton.FlatAppearance.BorderSize = 4;
             this.tigerPredictionButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
             this.tigerPredictionButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.tigerPredictionButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.818182F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.tigerPredictionButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.765218F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
             this.tigerPredictionButton.ForeColor = System.Drawing.Color.White;
-            this.tigerPredictionButton.Location = new System.Drawing.Point(436, 15);
+            this.tigerPredictionButton.Location = new System.Drawing.Point(487, 8);
+            this.tigerPredictionButton.Margin = new System.Windows.Forms.Padding(4);
             this.tigerPredictionButton.Name = "tigerPredictionButton";
-            this.tigerPredictionButton.Size = new System.Drawing.Size(96, 57);
+            this.tigerPredictionButton.Size = new System.Drawing.Size(88, 58);
             this.tigerPredictionButton.TabIndex = 21;
             this.tigerPredictionButton.Text = "Bet T : 0%";
             this.tigerPredictionButton.UseVisualStyleBackColor = false;
@@ -276,32 +295,24 @@
             this.actualScoreDataGridViewTextBoxColumn,
             this.betScoreDataGridViewTextBoxColumn,
             this.Result,
-            this.winRateDataGridViewTextBoxColumn});
+            this.winRateDataGridViewTextBoxColumn,
+            this.DrTom});
             this.dataGridView1.DataSource = this.scoreBoardModelBindingSource;
-            this.dataGridView1.Location = new System.Drawing.Point(16, 65);
+            this.dataGridView1.Location = new System.Drawing.Point(14, 76);
+            this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 30;
-            this.dataGridView1.Size = new System.Drawing.Size(285, 396);
+            this.dataGridView1.Size = new System.Drawing.Size(320, 473);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView1_CellFormatting);
-            // 
-            // Result
-            // 
-            this.Result.DataPropertyName = "Result";
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.Result.DefaultCellStyle = dataGridViewCellStyle4;
-            this.Result.HeaderText = "Result";
-            this.Result.Name = "Result";
-            this.Result.ReadOnly = true;
-            this.Result.Width = 40;
             // 
             // clearButton
             // 
             this.clearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.clearButton.Location = new System.Drawing.Point(280, 475);
+            this.clearButton.Location = new System.Drawing.Point(314, 572);
+            this.clearButton.Margin = new System.Windows.Forms.Padding(4);
             this.clearButton.Name = "clearButton";
-            this.clearButton.Size = new System.Drawing.Size(63, 26);
+            this.clearButton.Size = new System.Drawing.Size(71, 32);
             this.clearButton.TabIndex = 24;
             this.clearButton.Text = "Clear";
             this.clearButton.UseVisualStyleBackColor = true;
@@ -311,29 +322,28 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(469, 467);
+            this.label1.Location = new System.Drawing.Point(508, 562);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(66, 13);
+            this.label1.Size = new System.Drawing.Size(86, 17);
             this.label1.TabIndex = 23;
             this.label1.Text = "Look behide";
             // 
             // lookBehideNumeric
             // 
             this.lookBehideNumeric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lookBehideNumeric.Location = new System.Drawing.Point(470, 485);
+            this.lookBehideNumeric.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::GamblingStat.Properties.Settings.Default, "LookBehide", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.lookBehideNumeric.Location = new System.Drawing.Point(510, 584);
+            this.lookBehideNumeric.Margin = new System.Windows.Forms.Padding(4);
             this.lookBehideNumeric.Minimum = new decimal(new int[] {
             4,
             0,
             0,
             0});
             this.lookBehideNumeric.Name = "lookBehideNumeric";
-            this.lookBehideNumeric.Size = new System.Drawing.Size(63, 20);
+            this.lookBehideNumeric.Size = new System.Drawing.Size(57, 22);
             this.lookBehideNumeric.TabIndex = 22;
-            this.lookBehideNumeric.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
+            this.lookBehideNumeric.Value = global::GamblingStat.Properties.Settings.Default.LookBehide;
             this.lookBehideNumeric.ValueChanged += new System.EventHandler(this.lookBehideNumeric_ValueChanged);
             // 
             // timer1
@@ -346,9 +356,10 @@
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(572, 467);
+            this.label4.Location = new System.Drawing.Point(763, 553);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(56, 13);
+            this.label4.Size = new System.Drawing.Size(71, 17);
             this.label4.TabIndex = 26;
             this.label4.Text = "Win count";
             this.label4.Visible = false;
@@ -356,14 +367,15 @@
             // winCountNumeric
             // 
             this.winCountNumeric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.winCountNumeric.Location = new System.Drawing.Point(572, 485);
+            this.winCountNumeric.Location = new System.Drawing.Point(763, 575);
+            this.winCountNumeric.Margin = new System.Windows.Forms.Padding(4);
             this.winCountNumeric.Minimum = new decimal(new int[] {
             4,
             0,
             0,
             0});
             this.winCountNumeric.Name = "winCountNumeric";
-            this.winCountNumeric.Size = new System.Drawing.Size(63, 20);
+            this.winCountNumeric.Size = new System.Drawing.Size(84, 22);
             this.winCountNumeric.TabIndex = 25;
             this.winCountNumeric.Value = new decimal(new int[] {
             7,
@@ -378,7 +390,8 @@
             this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer1.Location = new System.Drawing.Point(318, 78);
+            this.splitContainer1.Location = new System.Drawing.Point(357, 76);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -389,18 +402,39 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.cartesianChart1);
-            this.splitContainer1.Size = new System.Drawing.Size(216, 383);
-            this.splitContainer1.SplitterDistance = 191;
+            this.splitContainer1.Size = new System.Drawing.Size(218, 473);
+            this.splitContainer1.SplitterDistance = 234;
+            this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 27;
             // 
             // cartesianChart1
             // 
             this.cartesianChart1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cartesianChart1.Location = new System.Drawing.Point(0, 0);
+            this.cartesianChart1.Margin = new System.Windows.Forms.Padding(4);
             this.cartesianChart1.Name = "cartesianChart1";
-            this.cartesianChart1.Size = new System.Drawing.Size(216, 188);
+            this.cartesianChart1.Size = new System.Drawing.Size(218, 234);
             this.cartesianChart1.TabIndex = 0;
             this.cartesianChart1.Text = "cartesianChart1";
+            // 
+            // Result
+            // 
+            this.Result.DataPropertyName = "Result";
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.Result.DefaultCellStyle = dataGridViewCellStyle4;
+            this.Result.HeaderText = "Result";
+            this.Result.Name = "Result";
+            this.Result.ReadOnly = true;
+            this.Result.Width = 40;
+            // 
+            // DrTom
+            // 
+            this.DrTom.DataPropertyName = "DrTom";
+            this.DrTom.HeaderText = "Dr Tom";
+            this.DrTom.Name = "DrTom";
+            this.DrTom.ReadOnly = true;
+            this.DrTom.Width = 70;
             // 
             // predictionScoreDataGridViewTextBoxColumn
             // 
@@ -485,7 +519,7 @@
             this.winRateDataGridViewTextBoxColumn.DataPropertyName = "WinRate";
             dataGridViewCellStyle5.NullValue = null;
             this.winRateDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
-            this.winRateDataGridViewTextBoxColumn.HeaderText = "WinRate %";
+            this.winRateDataGridViewTextBoxColumn.HeaderText = "Win Rate %";
             this.winRateDataGridViewTextBoxColumn.Name = "winRateDataGridViewTextBoxColumn";
             this.winRateDataGridViewTextBoxColumn.ReadOnly = true;
             this.winRateDataGridViewTextBoxColumn.Width = 40;
@@ -501,9 +535,9 @@
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(550, 522);
+            this.ClientSize = new System.Drawing.Size(591, 620);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.winCountNumeric);
@@ -523,8 +557,10 @@
             this.Controls.Add(this.tigerButton);
             this.Controls.Add(this.dragonButton);
             this.Controls.Add(this.dataGridView1);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
@@ -568,11 +604,6 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown winCountNumeric;
-        private System.Windows.Forms.DataGridViewTextBoxColumn noDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn actualScoreDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewComboBoxColumn betScoreDataGridViewTextBoxColumn;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Result;
-        private System.Windows.Forms.DataGridViewTextBoxColumn winRateDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn predictionScoreDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn winRateDataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn selectedDataGridViewTextBoxColumn;
@@ -580,6 +611,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn AlgorithmType;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private LiveCharts.WinForms.CartesianChart cartesianChart1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn noDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn actualScoreDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewComboBoxColumn betScoreDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Result;
+        private System.Windows.Forms.DataGridViewTextBoxColumn winRateDataGridViewTextBoxColumn;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DrTom;
     }
 }
 

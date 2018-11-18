@@ -1,8 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Predictors\DrTomPredictor.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="LanguageExt.Core" Version="2.1.19" />

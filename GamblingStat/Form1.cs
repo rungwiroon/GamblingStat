@@ -36,7 +36,7 @@ namespace GamblingStat
 
         private ChartValues<double> _chartValues = new ChartValues<double>();
 
-    public Form1()
+        public Form1()
         {
             InitializeComponent();
 
@@ -61,10 +61,13 @@ namespace GamblingStat
                 new KeyValueModel() { Key = _tigerText, Value = _tigerText }
             };
 
-            topPredictionModeComboBox.SelectedIndex = 1;
+            topPredictionModeComboBox.SelectedIndex = 2;
 
             winCountNumeric.Maximum = lookBehideNumeric.Value;
+        }
 
+        private void SetupChart()
+        {
             cartesianChart1.Series = new SeriesCollection
             {
                 new LineSeries
@@ -90,9 +93,11 @@ namespace GamblingStat
             cartesianChart1.AxisY.Add(new Axis
             {
                 LabelFormatter = value => value.ToString("0"),
-                MaxValue = 105,
-                MinValue = 0
+                MaxValue = 80,
+                MinValue = 20
             });
+
+            cartesianChart1.Zoom = ZoomingOptions.Y;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -121,22 +126,26 @@ namespace GamblingStat
                     notSelectedCriteria = x => x.WinRate < 100 && x.WinRate >= 50;
                     break;
                 case 1:
+                    selectedCriteria = x => x.WinRate >= 90;
+                    notSelectedCriteria = x => x.WinRate < 90 && x.WinRate >= 50;
+                    break;
+                case 2:
                     selectedCriteria = x => x.WinRate >= 80;
                     notSelectedCriteria = x => x.WinRate < 80 && x.WinRate >= 50;
                     break;
-                case 2:
+                case 3:
                     selectedCriteria = x => x.WinRate >= 70;
                     notSelectedCriteria = x => x.WinRate < 70 && x.WinRate >= 50;
                     break;
-                case 3:
+                case 4:
                     selectedCriteria = x => x.WinRate >= 60;
                     notSelectedCriteria = x => x.WinRate < 60 && x.WinRate >= 50;
                     break;
-                case 4:
+                case 5:
                     selectedCriteria = x => x.WinRate >= 50;
                     notSelectedCriteria = x => false;
                     break;
-                case 5:
+                case 6:
                     selectedCriteria = x => x.Selected;
                     notSelectedCriteria = x => !x.Selected && x.WinRate >= 50;
                     break;
@@ -235,7 +244,7 @@ namespace GamblingStat
 
             //var gsTest = predictionResults.SelectMany(pr => pr.gss.Where(p => p.Predictions.Any()).Select(x => x.Predictions));
 
-            var gameStates2 = predictionResults.SelectMany(pr => pr.gs.Predictions,
+            var gameStates2 = predictionResults.SelectMany(pr => pr.gs.ScorePredictions,
                 (pr, p) => (pr, prediction: p.Map(x => x.Item2)));
 
             //var predictionResultByWinLimit = gameStates2
@@ -518,6 +527,11 @@ namespace GamblingStat
             UpdatePredictionDataSource();
 
             Cursor.Current = Cursors.Default;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Default.Save();
         }
     }
 }
