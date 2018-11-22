@@ -9,9 +9,9 @@ namespace Services.Domain
     {
         private Func<bool, Result> resultMapper => b => b ? Result.Win : Result.Lose;
 
-        public Option<Score> ActualScore { get; private set; }
+        public Option<Score> ActualScore { get; protected set; }
 
-        public Option<Score> BetScore { get; private set; }
+        public Option<Score> BetScore { get; protected set; }
 
         public Option<Result> ActualResult
         {

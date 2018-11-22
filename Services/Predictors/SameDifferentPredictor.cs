@@ -30,6 +30,7 @@ namespace Services.Predictors
                 (
                     index,
                     currentState.ActualScore,
+                    currentState.BetScore,
                     currentState.ScorePredictions.Select(p => (p.Value.Name, p.Value.Score))
                         .Append((Constants.SameDiffPredictionName, x))
                         .Append((Constants.InvertedSameDiffPredictionName, Helper.InvertScoreMapper(x)))

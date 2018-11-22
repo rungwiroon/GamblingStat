@@ -24,7 +24,7 @@ namespace Services.Predictors
                 return currentState;
 
             var length = gameStates.Count();
-            var previousStates = gameStates.Reverse().Take(OneCheckSize)
+            var previousStates = gameStates.Take(index + 1).Reverse().Take(OneCheckSize)
                 .ToList();
 
             DrTom2Status currentStatus = DrTom2Status.One;
@@ -35,16 +35,17 @@ namespace Services.Predictors
                 return new GameStateOutput(
                     currentState.Index,
                     currentState.ActualScore,
+                    currentState.BetScore,
                     currentState.ScorePredictions,
                     new DrTom2Prediction(
                         None, None, currentStatus, previousStates[1].ActualResult));
             }
 
             // is sign changed
-            Option<int> signChanged = from ac in currentState.ActualResult
+            Option<int> signChanged = from ar1 in currentState.ActualResult
+                                      from ar2 in previousStates[1].ActualResult
                                       from rp in previousStates[1].ResultPrediction
-                                      from pr in rp.Result
-                                      where ac != pr
+                                      where ar1 != ar2
                                       select rp.SignChanged.Match(sc => sc + 1, () => 1);
 
             var previousStatus = from rp in previousStates[1].ResultPrediction
@@ -54,7 +55,7 @@ namespace Services.Predictors
             // if sign changed
             var state2 = from sc in signChanged
                          from pa in previousStatus
-                         select CalculateActualWhenSignChanged(pa);
+                         select CalculateActualWhenSignChanged(pa, sc);
 
             // create current actual
             previousStatus.IfSome(pa =>
@@ -63,12 +64,12 @@ namespace Services.Predictors
             });
 
             // if match with 1 pattern
-            if (previousStates.Count >= OneCheckSize)
-            {
-                if (IsItOnePattern(previousStates.Take(OneCheckSize)
-                    .Select(ps => ps.ActualResult.IfNone(Result.Lose))))
-                    currentStatus = DrTom2Status.One;
-            }
+            //if (previousStates.Count >= OneCheckSize)
+            //{
+            //    if (IsItOnePattern(previousStates.Take(OneCheckSize)
+            //        .Select(ps => ps.ActualResult.IfNone(Result.Lose))))
+            //            currentStatus = DrTom2Status.One;
+            //}
 
             var finalStatus = currentStatus;
 
@@ -111,6 +112,7 @@ namespace Services.Predictors
             return new GameStateOutput(
                     currentState.Index,
                     currentState.ActualScore,
+                    currentState.BetScore,
                     currentState.ScorePredictions,
                     new DrTom2Prediction(
                         MapSignChanged(currentStatus, signChanged),
@@ -148,8 +150,12 @@ namespace Services.Predictors
         }
 
         private DrTom2Status CalculateActualWhenSignChanged(
-            DrTom2Status previousDrTomStatus)
+            DrTom2Status previousDrTomStatus,
+            int signChangedCount)
         {
+            if (signChangedCount == 1)
+                return previousDrTomStatus;
+
             if (previousDrTomStatus == DrTom2Status.One
                 || previousDrTomStatus == DrTom2Status.CMinus)
                 return DrTom2Status.Two;
@@ -162,7 +168,8 @@ namespace Services.Predictors
             switch(current)
             {
                 case DrTom2Status.One:
-                case DrTom2Status.Two:
+                case DrTom2Status.CMinus:
+                case DrTom2Status.CPlus:
                     return 1;
                 default:
                     return signChanged;

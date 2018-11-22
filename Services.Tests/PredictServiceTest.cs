@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using LanguageExt;
+using static LanguageExt.Prelude;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Services.Domain;
 using Services.Predictors;
@@ -38,7 +39,7 @@ namespace Services.Tests
 
             var predictService = new PredictionService(predictors);
             var tableSize = 8;
-            var result = predictService.Predict(scores, tableSize)
+            var result = predictService.Predict(scores.Select(x => new GameStateInput(x, None)), tableSize)
                 .ToList();
 
             Assert.AreEqual((int)Math.Pow(2, tableSize), result.Count());
