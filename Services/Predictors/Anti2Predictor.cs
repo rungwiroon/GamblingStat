@@ -31,7 +31,7 @@ namespace Services.Predictors
                     currentState.BetScore,
                     currentState.ScorePredictions.Select(p => (p.Value.Name, p.Value.Score))
                         .Append((Constants.Anti2PredictionName, x))
-                        .Append((Constants.InvertedAnti2PredictionName, Helper.InvertScoreMapper(x)))
+                        //.Append((Constants.InvertedAnti2PredictionName, Helper.InvertScoreMapper(x)))
                 );
             }, () => currentState);
         }

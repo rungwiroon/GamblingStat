@@ -55,21 +55,19 @@ namespace Services.Predictors
             // if sign changed
             var state2 = from sc in signChanged
                          from pa in previousStatus
-                         select CalculateActualWhenSignChanged(pa, sc);
+                         select CalculateStatusWhenSignChanged(pa, sc);
+
+            var signChanged2 = signChanged.IfNone(() =>
+            {
+                return previousStates[1].ResultPrediction
+                       .Match(x => x.SignChanged.IfNone(0), () => 0);
+            });
 
             // create current actual
             previousStatus.IfSome(pa =>
             {
-                currentStatus = state2.IfNone(CalculateActualWhenSignNoChanged(pa));
+                currentStatus = state2.Match(s => s, () => CalculateStatusWhenSignNoChanged(pa, signChanged2));
             });
-
-            // if match with 1 pattern
-            //if (previousStates.Count >= OneCheckSize)
-            //{
-            //    if (IsItOnePattern(previousStates.Take(OneCheckSize)
-            //        .Select(ps => ps.ActualResult.IfNone(Result.Lose))))
-            //            currentStatus = DrTom2Status.One;
-            //}
 
             var finalStatus = currentStatus;
 
@@ -134,9 +132,19 @@ namespace Services.Predictors
             return balance;
         }
 
-        private DrTom2Status CalculateActualWhenSignNoChanged(
-            DrTom2Status previousDrTomStatus)
+        private DrTom2Status CalculateStatusWhenSignNoChanged(
+            DrTom2Status previousDrTomStatus,
+            int signChangedCount)
         {
+            if (signChangedCount == 2)
+            {
+                if (previousDrTomStatus == DrTom2Status.One)
+                    return DrTom2Status.CMinus;
+            }
+
+            if (previousDrTomStatus == DrTom2Status.Two)
+                return DrTom2Status.One;
+
             if (previousDrTomStatus == DrTom2Status.Two
                 || previousDrTomStatus == DrTom2Status.CPlus)
             {
@@ -149,10 +157,21 @@ namespace Services.Predictors
             }
         }
 
-        private DrTom2Status CalculateActualWhenSignChanged(
+        private DrTom2Status CalculateStatusWhenSignChanged(
             DrTom2Status previousDrTomStatus,
             int signChangedCount)
         {
+            if(signChangedCount == 2)
+            {
+                if (previousDrTomStatus == DrTom2Status.One)
+                {
+                    return DrTom2Status.Two;
+                }
+            }
+
+            if (previousDrTomStatus == DrTom2Status.CMinus)
+                return DrTom2Status.Two;
+
             if (signChangedCount == 1)
                 return previousDrTomStatus;
 
@@ -165,12 +184,15 @@ namespace Services.Predictors
 
         private Option<int> MapSignChanged(DrTom2Status current, Option<int> signChanged)
         {
+            if (signChanged == 1)
+                return signChanged;
+
             switch(current)
             {
                 case DrTom2Status.One:
                 case DrTom2Status.CMinus:
                 case DrTom2Status.CPlus:
-                    return 1;
+                    return 0;
                 default:
                     return signChanged;
             }

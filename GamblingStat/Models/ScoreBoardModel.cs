@@ -13,6 +13,7 @@ namespace GamblingStat.Models
         public string BetScore { get; set; }
         public string Result { get; set; }
         public int? WinRate { get; set; }
-        public string DrTom { get; set; }
+        public string DrTomResult { get; set; }
+        public string DrTomInfo { get; set; }
     }
 }

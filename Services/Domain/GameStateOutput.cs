@@ -13,21 +13,7 @@ namespace Services.Domain
 
         public int Index { get; private set; }
 
-        //public Option<Score> ActualScore { get; private set; }
-
-        //public Option<Score> BetScore { get; private set; }
-
-        //public Option<Result> ActualResult
-        //{
-        //    get
-        //    {
-        //        return from actualS in ActualScore
-        //               from betS in BetScore
-        //               select resultMapper(actualS == betS);
-        //    }
-        //}
-
-        public Option<Result> PredictionResult { get; private set; }
+        //public Option<Result> PredictionResult { get; private set; }
 
         public Map<string, PredictionScore> ScorePredictions { get; private set; }
 
@@ -41,18 +27,18 @@ namespace Services.Domain
             BetScore = betScore;
         }
         
-        public GameStateOutput(int index, Option<Score> actualScore, Option<Score> betScore, Option<Score> mappingTableScore)
-            : this(index, actualScore, betScore)
-        {
-            var prediction = mappingTableScore.Map(x =>
-            (
-                Constants.MappingTablePredctionName,
-                new PredictionScore(
-                    Constants.MappingTablePredctionName, x, ActualScore.Map(s => resultMapper(s == ActualScore)))
-            ));
+        //public GameStateOutput(int index, Option<Score> actualScore, Option<Score> betScore, Option<Score> mappingTableScore)
+        //    : this(index, actualScore, betScore)
+        //{
+        //    var prediction = mappingTableScore.Map(x =>
+        //    (
+        //        Constants.MappingTablePredctionName,
+        //        new PredictionScore(
+        //            Constants.MappingTablePredctionName, x, ActualScore.Map(s => resultMapper(s == ActualScore)))
+        //    ));
 
-            ScorePredictions = new Map<string, PredictionScore>(prediction);
-        }
+        //    ScorePredictions = new Map<string, PredictionScore>(prediction);
+        //}
 
         public GameStateOutput(
             int index,

@@ -102,25 +102,6 @@ namespace Services.Tests
         }
 
         [TestMethod]
-        public void WhenResultNotChangedAfterTwoStatus_ThenStatusShouldChangedToCMinus()
-        {
-            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
-                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
-                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2));
-            var predictor = new DrTom2Predictor();
-            var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
-
-            for (int i = 0; i < outputs.Count; i++)
-            {
-                var output = predictor.Predict(outputs, i);
-                outputs[i] = output;
-            }
-
-            Assert.AreEqual(DrTom2Status.CMinus, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
-            Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
-        }
-
-        [TestMethod]
         public void WhenResultChangedOnceOnOneStatus_ThenStatusShouldStillOne()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
@@ -159,7 +140,26 @@ namespace Services.Tests
         }
 
         [TestMethod]
-        public void WhenResultChanged4Times_ThenStatusShouldStillCPlus()
+        public void WhenResultNotChangedAfterTwoStatus_ThenStatusShouldChangedToOne()
+        {
+            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2));
+            var predictor = new DrTom2Predictor();
+            var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
+
+            for (int i = 0; i < outputs.Count; i++)
+            {
+                var output = predictor.Predict(outputs, i);
+                outputs[i] = output;
+            }
+
+            Assert.AreEqual(DrTom2Status.One, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
+        }
+
+        [TestMethod]
+        public void WhenResultToggle4Times_ThenStatusShouldStillCPlus()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
@@ -201,7 +201,7 @@ namespace Services.Tests
         }
 
         [TestMethod]
-        public void WhenResultSame2TimesAfterCMinus_ThenStatusShouldChangedCMinus()
+        public void WhenResultSame2TimesAfterCMinus_ThenStatusShouldChangedOne()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
@@ -218,7 +218,7 @@ namespace Services.Tests
                 outputs[i] = output;
             }
 
-            Assert.AreEqual(DrTom2Status.CMinus, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(DrTom2Status.One, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
             Assert.AreEqual(Result.Lose, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
         }
 
@@ -243,6 +243,48 @@ namespace Services.Tests
             }
 
             Assert.AreEqual(DrTom2Status.CPlus, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
+        }
+
+        [TestMethod]
+        public void WhenSignChangedOnCMinus_ThenStatusShouldChangedTwo()
+        {
+            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 2))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1));
+            var predictor = new DrTom2Predictor();
+            var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
+
+            for (int i = 0; i < outputs.Count; i++)
+            {
+                var output = predictor.Predict(outputs, i);
+                outputs[i] = output;
+            }
+
+            Assert.AreEqual(DrTom2Status.Two, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
+        }
+
+        [TestMethod]
+        public void WhenResultSame3TimesAfterCMinus_ThenStatusShouldChangedOne()
+        {
+            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 2))
+                .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2));
+            var predictor = new DrTom2Predictor();
+            var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
+
+            for (int i = 0; i < outputs.Count; i++)
+            {
+                var output = predictor.Predict(outputs, i);
+                outputs[i] = output;
+            }
+
+            Assert.AreEqual(DrTom2Status.One, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
             Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
         }
     }

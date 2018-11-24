@@ -29,20 +29,17 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dragonButton = new System.Windows.Forms.Button();
             this.tigerButton = new System.Windows.Forms.Button();
             this.undoButton = new System.Windows.Forms.Button();
             this.actualTigerPercentageLabel = new System.Windows.Forms.Label();
             this.actualDragonPercentageLabel = new System.Windows.Forms.Label();
             this.topPredictionModeComboBox = new System.Windows.Forms.ComboBox();
-            this.dataGridView2 = new System.Windows.Forms.DataGridView();
-            this.WrongCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.AlgorithmType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.betTigerPercentageLabel = new System.Windows.Forms.Label();
@@ -56,10 +53,13 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label4 = new System.Windows.Forms.Label();
             this.winCountNumeric = new System.Windows.Forms.NumericUpDown();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.cartesianChart1 = new LiveCharts.WinForms.CartesianChart();
+            this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.WrongCount = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.AlgorithmType = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Result = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DrTom = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DrTomInfo = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.predictionScoreDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.winRateDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.selectedDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
@@ -71,14 +71,10 @@
             this.winRateDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.scoreBoardModelBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.topPredictionModelBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookBehideNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.winCountNumeric)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.topPredictionModelBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.keyValueModelBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.scoreBoardModelBindingSource)).BeginInit();
@@ -164,44 +160,6 @@
             this.topPredictionModeComboBox.TabIndex = 15;
             this.topPredictionModeComboBox.SelectedIndexChanged += new System.EventHandler(this.topPredictionModeComboBox_SelectedIndexChanged);
             // 
-            // dataGridView2
-            // 
-            this.dataGridView2.AllowUserToAddRows = false;
-            this.dataGridView2.AllowUserToDeleteRows = false;
-            this.dataGridView2.AutoGenerateColumns = false;
-            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.predictionScoreDataGridViewTextBoxColumn,
-            this.winRateDataGridViewTextBoxColumn1,
-            this.selectedDataGridViewTextBoxColumn,
-            this.WrongCount,
-            this.AlgorithmType});
-            this.dataGridView2.DataSource = this.topPredictionModelBindingSource;
-            this.dataGridView2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridView2.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView2.Margin = new System.Windows.Forms.Padding(4);
-            this.dataGridView2.Name = "dataGridView2";
-            this.dataGridView2.RowHeadersWidth = 30;
-            this.dataGridView2.Size = new System.Drawing.Size(218, 234);
-            this.dataGridView2.TabIndex = 12;
-            this.dataGridView2.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView2_CellFormatting);
-            // 
-            // WrongCount
-            // 
-            this.WrongCount.DataPropertyName = "WrongCount";
-            this.WrongCount.HeaderText = "Wrong Count";
-            this.WrongCount.Name = "WrongCount";
-            this.WrongCount.ReadOnly = true;
-            this.WrongCount.Width = 40;
-            // 
-            // AlgorithmType
-            // 
-            this.AlgorithmType.DataPropertyName = "AlgorithmType";
-            this.AlgorithmType.HeaderText = "AlgorithmType";
-            this.AlgorithmType.Name = "AlgorithmType";
-            this.AlgorithmType.ReadOnly = true;
-            this.AlgorithmType.Width = 50;
-            // 
             // label2
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -248,6 +206,7 @@
             // 
             // dragonPredictionButton
             // 
+            this.dragonPredictionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.dragonPredictionButton.BackColor = global::GamblingStat.Properties.Settings.Default.DragonColor;
             this.dragonPredictionButton.DataBindings.Add(new System.Windows.Forms.Binding("BackColor", global::GamblingStat.Properties.Settings.Default, "DragonColor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.dragonPredictionButton.FlatAppearance.BorderSize = 4;
@@ -266,6 +225,7 @@
             // 
             // tigerPredictionButton
             // 
+            this.tigerPredictionButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.tigerPredictionButton.BackColor = global::GamblingStat.Properties.Settings.Default.TigerColor;
             this.tigerPredictionButton.DataBindings.Add(new System.Windows.Forms.Binding("BackColor", global::GamblingStat.Properties.Settings.Default, "TigerColor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.tigerPredictionButton.FlatAppearance.BorderSize = 4;
@@ -286,8 +246,9 @@
             // 
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToDeleteRows = false;
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
+            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.AutoGenerateColumns = false;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -296,13 +257,14 @@
             this.betScoreDataGridViewTextBoxColumn,
             this.Result,
             this.winRateDataGridViewTextBoxColumn,
-            this.DrTom});
+            this.DrTom,
+            this.DrTomInfo});
             this.dataGridView1.DataSource = this.scoreBoardModelBindingSource;
             this.dataGridView1.Location = new System.Drawing.Point(14, 76);
             this.dataGridView1.Margin = new System.Windows.Forms.Padding(4);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 30;
-            this.dataGridView1.Size = new System.Drawing.Size(320, 473);
+            this.dataGridView1.Size = new System.Drawing.Size(320, 350);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView1_CellFormatting);
             // 
@@ -385,44 +347,62 @@
             this.winCountNumeric.Visible = false;
             this.winCountNumeric.ValueChanged += new System.EventHandler(this.winCountNumeric_ValueChanged);
             // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitContainer1.Location = new System.Drawing.Point(357, 76);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.dataGridView2);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.cartesianChart1);
-            this.splitContainer1.Size = new System.Drawing.Size(218, 473);
-            this.splitContainer1.SplitterDistance = 234;
-            this.splitContainer1.SplitterWidth = 5;
-            this.splitContainer1.TabIndex = 27;
-            // 
             // cartesianChart1
             // 
-            this.cartesianChart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cartesianChart1.Location = new System.Drawing.Point(0, 0);
+            this.cartesianChart1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cartesianChart1.Location = new System.Drawing.Point(13, 434);
             this.cartesianChart1.Margin = new System.Windows.Forms.Padding(4);
             this.cartesianChart1.Name = "cartesianChart1";
-            this.cartesianChart1.Size = new System.Drawing.Size(218, 234);
-            this.cartesianChart1.TabIndex = 0;
+            this.cartesianChart1.Size = new System.Drawing.Size(565, 115);
+            this.cartesianChart1.TabIndex = 28;
             this.cartesianChart1.Text = "cartesianChart1";
+            // 
+            // dataGridView2
+            // 
+            this.dataGridView2.AllowUserToAddRows = false;
+            this.dataGridView2.AllowUserToDeleteRows = false;
+            this.dataGridView2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridView2.AutoGenerateColumns = false;
+            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.predictionScoreDataGridViewTextBoxColumn,
+            this.winRateDataGridViewTextBoxColumn1,
+            this.selectedDataGridViewTextBoxColumn,
+            this.WrongCount,
+            this.AlgorithmType});
+            this.dataGridView2.DataSource = this.topPredictionModelBindingSource;
+            this.dataGridView2.Location = new System.Drawing.Point(357, 76);
+            this.dataGridView2.Margin = new System.Windows.Forms.Padding(4);
+            this.dataGridView2.Name = "dataGridView2";
+            this.dataGridView2.RowHeadersWidth = 30;
+            this.dataGridView2.Size = new System.Drawing.Size(218, 350);
+            this.dataGridView2.TabIndex = 29;
+            this.dataGridView2.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridView2_CellFormatting);
+            // 
+            // WrongCount
+            // 
+            this.WrongCount.DataPropertyName = "WrongCount";
+            this.WrongCount.HeaderText = "Wrong Count";
+            this.WrongCount.Name = "WrongCount";
+            this.WrongCount.ReadOnly = true;
+            this.WrongCount.Width = 40;
+            // 
+            // AlgorithmType
+            // 
+            this.AlgorithmType.DataPropertyName = "AlgorithmType";
+            this.AlgorithmType.HeaderText = "AlgorithmType";
+            this.AlgorithmType.Name = "AlgorithmType";
+            this.AlgorithmType.ReadOnly = true;
+            this.AlgorithmType.Width = 50;
             // 
             // Result
             // 
             this.Result.DataPropertyName = "Result";
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.Result.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.Result.DefaultCellStyle = dataGridViewCellStyle3;
             this.Result.HeaderText = "Result";
             this.Result.Name = "Result";
             this.Result.ReadOnly = true;
@@ -430,19 +410,27 @@
             // 
             // DrTom
             // 
-            this.DrTom.DataPropertyName = "DrTom";
-            this.DrTom.HeaderText = "Dr Tom";
+            this.DrTom.DataPropertyName = "DrTomResult";
+            this.DrTom.HeaderText = "Dr.Tom Result";
             this.DrTom.Name = "DrTom";
             this.DrTom.ReadOnly = true;
-            this.DrTom.Width = 70;
+            this.DrTom.Width = 40;
+            // 
+            // DrTomInfo
+            // 
+            this.DrTomInfo.DataPropertyName = "DrTomInfo";
+            this.DrTomInfo.HeaderText = "Dr.Tom Info";
+            this.DrTomInfo.Name = "DrTomInfo";
+            this.DrTomInfo.ReadOnly = true;
+            this.DrTomInfo.Width = 70;
             // 
             // predictionScoreDataGridViewTextBoxColumn
             // 
             this.predictionScoreDataGridViewTextBoxColumn.DataPropertyName = "PredictionScore";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.White;
-            this.predictionScoreDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
+            this.predictionScoreDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
             this.predictionScoreDataGridViewTextBoxColumn.HeaderText = "PredictionScore";
             this.predictionScoreDataGridViewTextBoxColumn.Name = "predictionScoreDataGridViewTextBoxColumn";
             this.predictionScoreDataGridViewTextBoxColumn.ReadOnly = true;
@@ -482,11 +470,11 @@
             // actualScoreDataGridViewTextBoxColumn
             // 
             this.actualScoreDataGridViewTextBoxColumn.DataPropertyName = "ActualScore";
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.Black;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-            this.actualScoreDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.Black;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.White;
+            this.actualScoreDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle1;
             this.actualScoreDataGridViewTextBoxColumn.HeaderText = "Actual Score";
             this.actualScoreDataGridViewTextBoxColumn.MinimumWidth = 20;
             this.actualScoreDataGridViewTextBoxColumn.Name = "actualScoreDataGridViewTextBoxColumn";
@@ -497,9 +485,9 @@
             // 
             this.betScoreDataGridViewTextBoxColumn.DataPropertyName = "BetScore";
             this.betScoreDataGridViewTextBoxColumn.DataSource = this.keyValueModelBindingSource;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
-            this.betScoreDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(222)));
+            this.betScoreDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle2;
             this.betScoreDataGridViewTextBoxColumn.DisplayMember = "Key";
             this.betScoreDataGridViewTextBoxColumn.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.Nothing;
             this.betScoreDataGridViewTextBoxColumn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -517,8 +505,8 @@
             // winRateDataGridViewTextBoxColumn
             // 
             this.winRateDataGridViewTextBoxColumn.DataPropertyName = "WinRate";
-            dataGridViewCellStyle5.NullValue = null;
-            this.winRateDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle4.NullValue = null;
+            this.winRateDataGridViewTextBoxColumn.DefaultCellStyle = dataGridViewCellStyle4;
             this.winRateDataGridViewTextBoxColumn.HeaderText = "Win Rate %";
             this.winRateDataGridViewTextBoxColumn.Name = "winRateDataGridViewTextBoxColumn";
             this.winRateDataGridViewTextBoxColumn.ReadOnly = true;
@@ -538,7 +526,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(591, 620);
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.dataGridView2);
+            this.Controls.Add(this.cartesianChart1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.winCountNumeric);
             this.Controls.Add(this.clearButton);
@@ -562,14 +551,10 @@
             this.Text = "Form1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lookBehideNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.winCountNumeric)).EndInit();
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.topPredictionModelBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.keyValueModelBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.scoreBoardModelBindingSource)).EndInit();
@@ -589,7 +574,6 @@
         private System.Windows.Forms.Label actualTigerPercentageLabel;
         private System.Windows.Forms.Label actualDragonPercentageLabel;
         private System.Windows.Forms.ComboBox topPredictionModeComboBox;
-        private System.Windows.Forms.DataGridView dataGridView2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label betTigerPercentageLabel;
@@ -604,19 +588,20 @@
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown winCountNumeric;
+        private LiveCharts.WinForms.CartesianChart cartesianChart1;
+        private System.Windows.Forms.DataGridView dataGridView2;
         private System.Windows.Forms.DataGridViewTextBoxColumn predictionScoreDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn winRateDataGridViewTextBoxColumn1;
         private System.Windows.Forms.DataGridViewCheckBoxColumn selectedDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn WrongCount;
         private System.Windows.Forms.DataGridViewTextBoxColumn AlgorithmType;
-        private System.Windows.Forms.SplitContainer splitContainer1;
-        private LiveCharts.WinForms.CartesianChart cartesianChart1;
         private System.Windows.Forms.DataGridViewTextBoxColumn noDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn actualScoreDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewComboBoxColumn betScoreDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn Result;
         private System.Windows.Forms.DataGridViewTextBoxColumn winRateDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn DrTom;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DrTomInfo;
     }
 }
 
