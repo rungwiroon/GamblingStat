@@ -24,10 +24,13 @@ namespace Services
 
         public GameStateOutputGroup Predict(
             IEnumerable<GameStateInput> scores, 
-            int tableSize, 
+            int tableSize,
+            int scorePredictorLookBehide,
             int predictionLimit = int.MaxValue)
         {
-            var scoresWithNextScore = scores.Append(new GameStateInput(None, None));
+            var scoresWithNextScore = scores
+                .Skip(scores.Count() - scorePredictorLookBehide)
+                .Append(new GameStateInput(None, None));
 
             var scoreResult = Enumerable.Range(0, (int)Math.Pow(2, tableSize))
                 .Select(x => (gs: PredictScore3(scoresWithNextScore, MapToScores(x, tableSize)), mv: x))
@@ -40,7 +43,7 @@ namespace Services
                 resultResult);
         }
 
-        public IEnumerable<GameStateOutput> PredictScore2(IEnumerable<GameStateInput> gameStates, IEnumerable<Score> mappingScores)
+        public IEnumerable<GameStateOutput> PredictScore(IEnumerable<GameStateInput> gameStates, IEnumerable<Score> mappingScores)
         {
             var scoresWithNextScore = gameStates
                 .Append(new GameStateInput(None, None));
@@ -48,7 +51,7 @@ namespace Services
             return PredictScore3(scoresWithNextScore, mappingScores);
         }
 
-        public IEnumerable<GameStateOutput> PredictScore2(IEnumerable<GameStateInput> gameStates, int mappingValue, int tableSize)
+        public IEnumerable<GameStateOutput> PredictScore(IEnumerable<GameStateInput> gameStates, int mappingValue, int tableSize)
         {
             var scoresWithNextScore = gameStates.Append(new GameStateInput(None, None));
 

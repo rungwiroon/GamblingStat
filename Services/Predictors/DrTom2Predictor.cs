@@ -38,7 +38,7 @@ namespace Services.Predictors
                     currentState.BetScore,
                     currentState.ScorePredictions,
                     new DrTom2Prediction(
-                        None, None, currentStatus, previousStates[1].ActualResult));
+                        None, None, currentStatus, currentState.ActualResult));
             }
 
             // is sign changed

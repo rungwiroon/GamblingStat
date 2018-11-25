@@ -30,6 +30,23 @@ namespace Services.Tests
         }
 
         [TestMethod]
+        public void initial_status_should_be_one_and_same_result()
+        {
+            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 13);
+            var predictor = new DrTom2Predictor();
+            var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
+
+            for (int i = 0; i < outputs.Count; i++)
+            {
+                var output = predictor.Predict(outputs, i);
+                outputs[i] = output;
+            }
+
+            Assert.AreEqual(DrTom2Status.One, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(Result.Lose, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
+        }
+
+        [TestMethod]
         public void if_result_not_changed_stay_at_one()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 14);
@@ -49,7 +66,7 @@ namespace Services.Tests
         [TestMethod]
         public void WhenResultChanged_ThenStatusShouldStillSameAsLastStatus()
         {
-            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
+            var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 12)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1));
             var predictor = new DrTom2Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();

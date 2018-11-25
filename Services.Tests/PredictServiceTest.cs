@@ -41,7 +41,7 @@ namespace Services.Tests
 
             var predictService = new PredictionService(predictors, resultPredictor);
             var tableSize = 8;
-            var result = predictService.Predict(scores.Select(x => new GameStateInput(x, None)), tableSize)
+            var result = predictService.Predict(scores.Select(x => new GameStateInput(x, None)), tableSize, 15)
                 .GameStatesWithScorePrediction
                 .ToList();
 
@@ -90,7 +90,7 @@ namespace Services.Tests
 
             var gameStates = scores.Select(s => new GameStateInput(s, None));
 
-            var result = predictService.PredictScore2(gameStates, mappingScores)
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
@@ -142,7 +142,7 @@ namespace Services.Tests
 
             var gameStates = scores.Select(s => new GameStateInput(s, None));
 
-            var result = predictService.PredictScore2(gameStates, mappingScores)
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
@@ -199,7 +199,7 @@ namespace Services.Tests
 
             var gameStates = scores.Select(s => new GameStateInput(s, None));
 
-            var result = predictService.PredictScore2(gameStates, mappingScores)
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
@@ -256,7 +256,7 @@ namespace Services.Tests
 
             var gameStates = scores.Select(s => new GameStateInput(s, None));
 
-            var result = predictService.PredictScore2(gameStates, mappingScores)
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());

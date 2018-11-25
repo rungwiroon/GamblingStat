@@ -36,6 +36,23 @@ namespace GamblingStat
 
         private ChartValues<double> _chartValues = new ChartValues<double>();
 
+        private bool WillWeWin
+        {
+            get
+            {
+                var scores = _scores.Where(s => !string.IsNullOrEmpty(s.DrTomResult));
+
+                if (scores.Any())
+                {
+                    var lastScore = scores.Last();
+
+                    return lastScore.DrTomResult == _winText;
+                }
+
+                return true;
+            }
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -229,16 +246,10 @@ namespace GamblingStat
             var predictionResults = _predictionService.Predict(
                 _scores
                 .Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
-                //.Skip(_scores.Count - (int)lookBehideNumeric.Value),
-                //.Select(s => s.ActualScore == _tigerText ? Score.Tiger : Score.Dragon),
-                Settings.Default.MappingTableSize);
+                Settings.Default.MappingTableSize,
+                (int)lookBehideNumeric.Value);
 
-            var scorePredictions = _predictionService.Predict(
-                _scores
-                .Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
-                //.Skip(_scores.Count - (int)lookBehideNumeric.Value),
-                //.Select(s => s.ActualScore == _tigerText ? Score.Tiger : Score.Dragon),
-                Settings.Default.MappingTableSize)
+            var scorePredictions = predictionResults
                 .GameStatesWithScorePrediction.Select(pr => 
                 (
                     gss: pr.GameStates.Reverse().Skip(1).ToList(),
@@ -490,15 +501,31 @@ namespace GamblingStat
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if(_dragonPredictionPercentage > _tigerPredictionPercentage)
+            if (_dragonPredictionPercentage > _tigerPredictionPercentage)
             {
-                ToggleBorderColor(dragonPredictionButton, Color.Red);
-                ToggleBorderColor(tigerPredictionButton, Color.White);
+                if (WillWeWin)
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.Red);
+                    ToggleBorderColor(tigerPredictionButton, Color.White);
+                }
+                else
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.White);
+                    ToggleBorderColor(tigerPredictionButton, Color.Blue);
+                }
             }
             else if(_tigerPredictionPercentage > _dragonPredictionPercentage)
             {
-                ToggleBorderColor(dragonPredictionButton, Color.White);
-                ToggleBorderColor(tigerPredictionButton, Color.Blue);
+                if(WillWeWin)
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.White);
+                    ToggleBorderColor(tigerPredictionButton, Color.Blue);
+                }
+                else
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.Red);
+                    ToggleBorderColor(tigerPredictionButton, Color.White);
+                }
             }
             else
             {
