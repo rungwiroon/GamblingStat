@@ -31,5 +31,41 @@ namespace GamblingStat.Properties {
                 return ((int)(this["MappingTableSize"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public decimal LookBehide {
+            get {
+                return ((decimal)(this["LookBehide"]));
+            }
+            set {
+                this["LookBehide"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public global::System.Drawing.Color DragonColor {
+            get {
+                return ((global::System.Drawing.Color)(this["DragonColor"]));
+            }
+            set {
+                this["DragonColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Blue")]
+        public global::System.Drawing.Color TigerColor {
+            get {
+                return ((global::System.Drawing.Color)(this["TigerColor"]));
+            }
+            set {
+                this["TigerColor"] = value;
+            }
+        }
     }
 }

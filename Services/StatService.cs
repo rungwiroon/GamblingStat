@@ -10,10 +10,10 @@ namespace Services
 {
     public class StatService
     {
-        public static Stat Calculate(IEnumerable<GameState> gameStates, int mappingValue)
+        public static Stat Calculate(IEnumerable<GameStateOutput> gameStates, int mappingValue)
         {
             var predictionStats = Constants.AllPredictionNames
-                .Select(pn => (name: pn, results: Filter(gameStates.Select(gs => gs.Predictions.Find(pn).Bind(p => p.Result)))))
+                .Select(pn => (name: pn, results: Filter(gameStates.Select(gs => gs.ScorePredictions.Find(pn).Bind(p => p.Result)))))
                 .Select(pr => Calculate(pr.name, pr.results));
 
             return new Stat(mappingValue, predictionStats);

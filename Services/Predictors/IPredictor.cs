@@ -9,6 +9,6 @@ namespace Services.Predictors
 {
     public interface IPredictor
     {
-        GameState Predict(IEnumerable<GameState> gameStates, int index);
+        GameStateOutput Predict(IEnumerable<GameStateOutput> gameStates, int index);
     }
 }

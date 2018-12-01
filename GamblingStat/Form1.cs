@@ -36,7 +36,24 @@ namespace GamblingStat
 
         private ChartValues<double> _chartValues = new ChartValues<double>();
 
-    public Form1()
+        private bool WillWeWin
+        {
+            get
+            {
+                var scores = _scores.Where(s => !string.IsNullOrEmpty(s.DrTomResult));
+
+                if (scores.Any())
+                {
+                    var lastScore = scores.Last();
+
+                    return lastScore.DrTomResult == _winText;
+                }
+
+                return true;
+            }
+        }
+
+        public Form1()
         {
             InitializeComponent();
 
@@ -47,10 +64,12 @@ namespace GamblingStat
             {
                 new SameDifferentPredictor(),
                 new Anti12Predictor(),
-                new Anti2Predictor()
+                new Anti2Predictor(),
             };
 
-            _predictionService = new PredictionService(predictors);
+            var resultPredictor = new DrTom2Predictor();
+
+            _predictionService = new PredictionService(predictors, resultPredictor);
 
             _scores = new List<ScoreBoardModel>();
 
@@ -61,10 +80,15 @@ namespace GamblingStat
                 new KeyValueModel() { Key = _tigerText, Value = _tigerText }
             };
 
-            topPredictionModeComboBox.SelectedIndex = 1;
+            topPredictionModeComboBox.SelectedIndex = 2;
 
             winCountNumeric.Maximum = lookBehideNumeric.Value;
 
+            SetupChart();
+        }
+
+        private void SetupChart()
+        {
             cartesianChart1.Series = new SeriesCollection
             {
                 new LineSeries
@@ -90,9 +114,11 @@ namespace GamblingStat
             cartesianChart1.AxisY.Add(new Axis
             {
                 LabelFormatter = value => value.ToString("0"),
-                MaxValue = 105,
-                MinValue = 0
+                MaxValue = 80,
+                MinValue = 20
             });
+
+            cartesianChart1.Zoom = ZoomingOptions.Y;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -121,22 +147,26 @@ namespace GamblingStat
                     notSelectedCriteria = x => x.WinRate < 100 && x.WinRate >= 50;
                     break;
                 case 1:
+                    selectedCriteria = x => x.WinRate >= 90;
+                    notSelectedCriteria = x => x.WinRate < 90 && x.WinRate >= 50;
+                    break;
+                case 2:
                     selectedCriteria = x => x.WinRate >= 80;
                     notSelectedCriteria = x => x.WinRate < 80 && x.WinRate >= 50;
                     break;
-                case 2:
+                case 3:
                     selectedCriteria = x => x.WinRate >= 70;
                     notSelectedCriteria = x => x.WinRate < 70 && x.WinRate >= 50;
                     break;
-                case 3:
+                case 4:
                     selectedCriteria = x => x.WinRate >= 60;
                     notSelectedCriteria = x => x.WinRate < 60 && x.WinRate >= 50;
                     break;
-                case 4:
+                case 5:
                     selectedCriteria = x => x.WinRate >= 50;
                     notSelectedCriteria = x => false;
                     break;
-                case 5:
+                case 6:
                     selectedCriteria = x => x.Selected;
                     notSelectedCriteria = x => !x.Selected && x.WinRate >= 50;
                     break;
@@ -179,17 +209,22 @@ namespace GamblingStat
             betTigerPercentageLabel.Text = CalculateScorePercentageString(_tigerText, betScores);
 
             var betResults = _scores;
-            betResults.Select((r, i) =>
+            var gameResults = betResults.Select((r, i) =>
             {
                 if (string.IsNullOrEmpty(_scores[i].BetScore))
                     return r.WinRate;
 
-                var betResults1 = betResults.Take(i + 1).Where(r1 => !string.IsNullOrEmpty(r1.BetScore));
-                return r.WinRate = (int)(betResults1.Where(r1 => r1.Result == "W").Count() / (float)betResults1.Count() * 100);
+                var betResults1 = betResults.Take(i + 1).Where(r1 => !string.IsNullOrEmpty(r1.BetScore))
+                    .Select(r1 =>
+                    {
+                        r1.Result = r1.ActualScore == r1.BetScore ? _winText : _loseText;
+                        return r1;
+                    });
+                return r.WinRate = (int)(betResults1.Where(r1 => r1.Result == _winText).Count() / (float)betResults1.Count() * 100);
             }).ToList();
 
             _chartValues.Clear();
-            _chartValues.AddRange(betResults.Select(r => r.WinRate ?? double.NaN));
+            _chartValues.AddRange(gameResults.Select(r => r ?? double.NaN));
         }
 
         private int CalculateScorePercentage(string score, IEnumerable<string> allScores)
@@ -210,84 +245,70 @@ namespace GamblingStat
         {
             var predictionResults = _predictionService.Predict(
                 _scores
-                .Skip(_scores.Count - (int)lookBehideNumeric.Value)
-                .Select(s => s.ActualScore == _tigerText ? Score.Tiger : Score.Dragon),
-                Settings.Default.MappingTableSize)
-                .Select(pr => 
+                .Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
+                Settings.Default.MappingTableSize,
+                (int)lookBehideNumeric.Value);
+
+            var scorePredictions = predictionResults
+                .GameStatesWithScorePrediction.Select(pr => 
                 (
-                    gss: pr.gameStates.Reverse().Skip(1).ToList(),
-                    gs: pr.gameStates.Last(),
-                    pr.stat
+                    gss: pr.GameStates.Reverse().Skip(1).ToList(),
+                    gs: pr.GameStates.Last(),
+                    gss2: pr.GameStates,
+                    pr.Stat
                 ))
                 .ToList();
 
-            //var winCount = (int)winCountNumeric.Value;
-            //if(winCount > _scores.Count)
-            //{
-            //    winCount = _scores.Count - 3;
-            //}
+            foreach(var pair in predictionResults.GameStatesWithResultPrediction
+                .Zip(_scores))
+            {
+                var result = from rp in pair.Item1.ResultPrediction
+                             from r in rp.Result
+                             select r == Services.Domain.Result.Win
+                                ? _winText
+                                : _loseText;
 
-            //Func<IEnumerable<Option<Result>>, bool> onlyWinByLimit
-            //    = x => x.Where(r => r.IsSome).TakeWhile(r => r == Services.Domain.Result.Win).Count() == winCount;
+                var info = from rp in pair.Item1.ResultPrediction
+                           from s in rp.Status
+                           select s.ToString();
 
-            //Func<IEnumerable<Option<Result>>, bool> onlyAllWin
-            //    = x => x.Where(r => r.IsSome).All(r => r == Services.Domain.Result.Win);
+                pair.Item2.DrTomResult = result.IfNone("");
+                pair.Item2.DrTomInfo = info.IfNone("");
+            }
 
-            //var gsTest = predictionResults.SelectMany(pr => pr.gss.Where(p => p.Predictions.Any()).Select(x => x.Predictions));
-
-            var gameStates2 = predictionResults.SelectMany(pr => pr.gs.Predictions,
+            var gameStates2 = scorePredictions.SelectMany(pr => pr.gs.ScorePredictions,
                 (pr, p) => (pr, prediction: p.Map(x => x.Item2)));
-
-            //var predictionResultByWinLimit = gameStates2
-            //    .Where(gs => gs.predictions.Any() && onlyWinByLimit(gs.predictions.Select(p => p.Result)))
-            //    .Select(pr => 
-            //    (
-            //        ps: pr.predictions.Last().Score, 
-            //        stat: pr.pr.stat.PredictionStats.Find(pr.predictionName.IfNone(string.Empty)).IfNone(new PredictionStat()), 
-            //        mv: pr.pr.stat.MappingValue
-            //    ));
-
-            //var predictionResultByAllWin = gameStates2
-            //    .Where(gs => gs.predictions.Any() && onlyAllWin(gs.predictions.Select(p => p.Result)))
-            //    .Select(pr =>
-            //    (
-            //        ps: pr.predictions. Last().Score,
-            //        stat: pr.pr.stat.PredictionStats.Find(pr.predictionName.IfNone(string.Empty)).IfNone(new PredictionStat()),
-            //        mv: pr.pr.stat.MappingValue
-            //    ));
-
-            //_predictionResults = Map(predictionResultByWinLimit).Concat(Map(predictionResultByAllWin))
-            //    .ToList();
 
             var predictionResults2 = gameStates2
                 .Where(gs => gs.prediction.Name != Constants.MappingTablePredctionName)
                 .Select(pr =>
                 (
                     ps: pr.prediction.Score,
-                    stat: pr.pr.stat.PredictionStats[pr.prediction.Name],
-                    mv: pr.pr.stat.MappingValue
+                    stat: pr.pr.Stat.PredictionStats[pr.prediction.Name],
+                    mv: pr.pr.Stat.MappingValue
                 ));
 
             _predictionResults = Map(predictionResults2).ToList();
+        }
+
+        private Option<Score> MapScore(string score)
+        {
+            if (string.IsNullOrEmpty(score))
+                return Option<Score>.None;
+
+            return score == _dragonText ? Score.Dragon : Score.Tiger;
         }
 
         private IEnumerable<PredictionModel> Map(
             IEnumerable<(Score ps, PredictionStat stat, int mv)> list)
         {
             return list
-                .Where(pr => pr.stat.Wrong3AndMoreCount == 0
-                    //|| _predictionResults.Any(pr1 => pr1.MappingValue == pr.mv
-                    //    && pr1.AlgorithmType == pr.stat.Name
-                    //    && pr1.Selected))
-                    )
+                .Where(pr => pr.stat.Wrong3AndMoreCount == 0)
                 .Select(pr => new PredictionModel()
                 {
                     PredictionScore = pr.ps == Score.Tiger ? _tigerText : _dragonText,
                     WinRate = pr.stat.WinRate,
                     MappingValue = pr.mv,
-                    //Selected = _predictionResults.Any(pr1 => pr1.MappingValue == pr.mv
-                    //    && pr1.AlgorithmType == algorithmName
-                    //    && pr1.Selected),
                     AlgorithmType = pr.stat.Name,
                     WrongCount = pr.stat.MaxConsecutiveWrong
                 });
@@ -480,15 +501,31 @@ namespace GamblingStat
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if(_dragonPredictionPercentage > _tigerPredictionPercentage)
+            if (_dragonPredictionPercentage > _tigerPredictionPercentage)
             {
-                ToggleBorderColor(dragonPredictionButton, Color.Red);
-                ToggleBorderColor(tigerPredictionButton, Color.White);
+                if (WillWeWin)
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.Red);
+                    ToggleBorderColor(tigerPredictionButton, Color.White);
+                }
+                else
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.White);
+                    ToggleBorderColor(tigerPredictionButton, Color.Blue);
+                }
             }
             else if(_tigerPredictionPercentage > _dragonPredictionPercentage)
             {
-                ToggleBorderColor(dragonPredictionButton, Color.White);
-                ToggleBorderColor(tigerPredictionButton, Color.Blue);
+                if(WillWeWin)
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.White);
+                    ToggleBorderColor(tigerPredictionButton, Color.Blue);
+                }
+                else
+                {
+                    ToggleBorderColor(dragonPredictionButton, Color.Red);
+                    ToggleBorderColor(tigerPredictionButton, Color.White);
+                }
             }
             else
             {
@@ -518,6 +555,11 @@ namespace GamblingStat
             UpdatePredictionDataSource();
 
             Cursor.Current = Cursors.Default;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Default.Save();
         }
     }
 }

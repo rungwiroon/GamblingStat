@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using LanguageExt;
+using static LanguageExt.Prelude;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Services.Domain;
 using Services.Predictors;
@@ -36,73 +37,16 @@ namespace Services.Tests
                 new Anti2Predictor()
             };
 
-            var predictService = new PredictionService(predictors);
+            var resultPredictor = new DummyPredictor();
+
+            var predictService = new PredictionService(predictors, resultPredictor);
             var tableSize = 8;
-            var result = predictService.Predict(scores, tableSize)
+            var result = predictService.Predict(scores.Select(x => new GameStateInput(x, None)), tableSize, 15)
+                .GameStatesWithScorePrediction
                 .ToList();
 
             Assert.AreEqual((int)Math.Pow(2, tableSize), result.Count());
-            Assert.AreEqual(scores.Count() + 1, result.First().gameStates.Count());
-
-            //Debug.WriteLine("Best mt");
-            //foreach (var bestPredict in result
-            //    //.Select(r => r.stat.SameDiffPredictionStat)
-            //    .OrderBy(s => s.stat.MappingTablePredictionStat.Wrong3AndMoreCount)
-            //    .ThenBy(s => s.stat.MappingTablePredictionStat.Wrong2Count)
-            //    .ThenBy(s => s.stat.MappingTablePredictionStat.Wrong1Count)
-            //    .ThenByDescending(s => s.stat.MappingTablePredictionStat.WinRate)
-            //    //.OrderByDescending(s => s.MoreThan1ConsecutiveWrongPredictionCount)
-            //    .Take(5))
-            //{
-            //    Debug.WriteLine($"{bestPredict.gameStates.Last()}\t{bestPredict.stat}");
-            //}
-            //Debug.WriteLine("");
-
-            //Debug.WriteLine("Best sd");
-            //foreach (var bestPredict in result
-            //    //.Select(r => r.stat.SameDiffPredictionStat)
-            //    .OrderBy(s => s.stat.SameDiffPredictionStat.Wrong3AndMoreCount)
-            //    .ThenBy(s => s.stat.SameDiffPredictionStat.Wrong2Count)
-            //    .ThenBy(s => s.stat.SameDiffPredictionStat.Wrong1Count)
-            //    .ThenByDescending(s => s.stat.SameDiffPredictionStat.WinRate)
-            //    //.OrderByDescending(s => s.MoreThan1ConsecutiveWrongPredictionCount)
-            //    .Take(5))
-            //{
-            //    Debug.WriteLine($"{bestPredict.gameStates.Last()}\t{bestPredict.stat}");
-            //}
-            //Debug.WriteLine("");
-
-            //Debug.WriteLine("Best a12");
-            //foreach (var bestPredict in result
-            //    //.Select(r => r.stat.Anti12PredictionStat)
-            //    //.OrderBy(s => s.MoreThan1ConsecutiveWrongPredictionCount)
-            //    //.ThenByDescending(s => s.WinRate)
-            //    //.OrderByDescending(s => s.MoreThan1ConsecutiveWrongPredictionCount)
-            //    .OrderBy(s => s.stat.Anti12PredictionStat.Wrong3AndMoreCount)
-            //    .ThenBy(s => s.stat.Anti12PredictionStat.Wrong2Count)
-            //    .ThenBy(s => s.stat.Anti12PredictionStat.Wrong1Count)
-            //    .ThenByDescending(s => s.stat.Anti12PredictionStat.WinRate)
-            //    .Take(5))
-            //{
-            //    Debug.WriteLine($"{bestPredict.gameStates.Last()}\t{bestPredict.stat}");
-            //}
-            //Debug.WriteLine("");
-
-            //Debug.WriteLine("Best a2");
-            //foreach (var bestPredict in result
-            //    //.Select(r => r.stat.Anti2PredictionStat)
-            //    //.OrderBy(s => s.MoreThan1ConsecutiveWrongPredictionCount)
-            //    //.ThenByDescending(s => s.WinRate)
-            //    //.OrderByDescending(s => s.MoreThan1ConsecutiveWrongPredictionCount)
-            //    .OrderBy(s => s.stat.Anti2PredictionStat.Wrong3AndMoreCount)
-            //    .ThenBy(s => s.stat.Anti2PredictionStat.Wrong2Count)
-            //    .ThenBy(s => s.stat.Anti2PredictionStat.Wrong1Count)
-            //    .ThenByDescending(s => s.stat.Anti2PredictionStat.WinRate)
-            //    .Take(5))
-            //{
-            //    Debug.WriteLine($"{bestPredict.gameStates.Last()}\t{bestPredict.stat}");
-            //}
-            //Debug.WriteLine("");
+            Assert.AreEqual(scores.Count() + 1, result.First().GameStates.Count());
         }
 
         [TestMethod]
@@ -129,7 +73,9 @@ namespace Services.Tests
                 new Anti2Predictor()
             };
 
-            var predictService = new PredictionService(predictors);
+            var resultPredictor = new DummyPredictor();
+
+            var predictService = new PredictionService(predictors, resultPredictor);
             var mappingScores = new Score[]
             {
                 Score.Tiger,
@@ -141,16 +87,19 @@ namespace Services.Tests
                 Score.Tiger,
                 Score.Tiger
             };
-            var result = predictService.Predict2(scores, mappingScores)
+
+            var gameStates = scores.Select(s => new GameStateInput(s, None));
+
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var predictResult = result.Last();
-            Assert.AreEqual(Score.Dragon, predictResult.Predictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score));
-            Assert.AreEqual(Score.Dragon, predictResult.Predictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score));
-            Assert.AreEqual(Score.Tiger, predictResult.Predictions.Find(Constants.Anti12PredictionName).Map(x => x.Score));
-            Assert.AreEqual(Score.Dragon, predictResult.Predictions.Find(Constants.Anti2PredictionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Tiger, predictResult.ScorePredictions.Find(Constants.Anti12PredictionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.Anti2PredictionName).Map(x => x.Score));
         }
 
         [TestMethod]
@@ -176,7 +125,9 @@ namespace Services.Tests
                 new Anti2Predictor()
             };
 
-            var predictService = new PredictionService(predictors);
+            var resultPredictor = new DummyPredictor();
+
+            var predictService = new PredictionService(predictors, resultPredictor);
             var mappingScores = new Score[]
             {
                 Score.Dragon,
@@ -188,13 +139,16 @@ namespace Services.Tests
                 Score.Tiger,
                 Score.Dragon
             };
-            var result = predictService.Predict2(scores, mappingScores)
+
+            var gameStates = scores.Select(s => new GameStateInput(s, None));
+
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var sdResult = result
-                    .Select(r => r.Predictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
+                    .Select(r => r.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
                     .Where(r => r.IsSome)
                     .Map(r => r.IfNone(Result.Lose));
 
@@ -228,7 +182,9 @@ namespace Services.Tests
                 new Anti2Predictor()
             };
 
-            var predictService = new PredictionService(predictors);
+            var resultPredictor = new DummyPredictor();
+
+            var predictService = new PredictionService(predictors, resultPredictor);
             var mappingScores = new Score[]
             {
                 Score.Dragon,
@@ -240,13 +196,16 @@ namespace Services.Tests
                 Score.Dragon,
                 Score.Dragon
             };
-            var result = predictService.Predict2(scores, mappingScores)
+
+            var gameStates = scores.Select(s => new GameStateInput(s, None));
+
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var sdResult = result
-                    .Select(r => r.Predictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
+                    .Select(r => r.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
                     .Where(r => r.IsSome)
                     .Map(r => r.IfNone(Result.Lose));
 
@@ -280,7 +239,9 @@ namespace Services.Tests
                 new Anti2Predictor()
             };
 
-            var predictService = new PredictionService(predictors);
+            var resultPredictor = new DummyPredictor();
+
+            var predictService = new PredictionService(predictors, resultPredictor);
             var mappingScores = new Score[]
             {
                 Score.Tiger,
@@ -292,13 +253,16 @@ namespace Services.Tests
                 Score.Tiger,
                 Score.Tiger
             };
-            var result = predictService.Predict2(scores, mappingScores)
+
+            var gameStates = scores.Select(s => new GameStateInput(s, None));
+
+            var result = predictService.PredictScore(gameStates, mappingScores)
                 .ToList();
 
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var sdResult = result
-                    .Select(r => r.Predictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
+                    .Select(r => r.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(p => p.Result))
                     .Where(r => r.IsSome)
                     .Map(r => r.IfNone(Result.Lose));
 
