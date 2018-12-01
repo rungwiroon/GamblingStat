@@ -503,29 +503,13 @@ namespace GamblingStat
         {
             if (_dragonPredictionPercentage > _tigerPredictionPercentage)
             {
-                if (WillWeWin)
-                {
-                    ToggleBorderColor(dragonPredictionButton, Color.Red);
-                    ToggleBorderColor(tigerPredictionButton, Color.White);
-                }
-                else
-                {
-                    ToggleBorderColor(dragonPredictionButton, Color.White);
-                    ToggleBorderColor(tigerPredictionButton, Color.Blue);
-                }
+                ToggleBorderColor(dragonPredictionButton, Color.Red);
+                ToggleBorderColor(tigerPredictionButton, Color.White);
             }
             else if(_tigerPredictionPercentage > _dragonPredictionPercentage)
             {
-                if(WillWeWin)
-                {
-                    ToggleBorderColor(dragonPredictionButton, Color.White);
-                    ToggleBorderColor(tigerPredictionButton, Color.Blue);
-                }
-                else
-                {
-                    ToggleBorderColor(dragonPredictionButton, Color.Red);
-                    ToggleBorderColor(tigerPredictionButton, Color.White);
-                }
+                ToggleBorderColor(dragonPredictionButton, Color.White);
+                ToggleBorderColor(tigerPredictionButton, Color.Blue);
             }
             else
             {
