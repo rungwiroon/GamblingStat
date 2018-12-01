@@ -32,7 +32,7 @@ namespace Services
                 .Skip(scores.Count() - scorePredictorLookBehide)
                 .Append(new GameStateInput(None, None));
 
-            var scoreResult = Enumerable.Range(0, (int)Math.Pow(2, tableSize))
+            var scoreResult = Enumerable.Range(0, (int)Math.Pow(2, tableSize - 1))
                 .Select(x => (gs: PredictScore3(scoresWithNextScore, MapToScores(x, tableSize)), mv: x))
                 .Select(x => (gameState: x.gs, stat: StatService.Calculate(x.gs.Where(gs => gs.ActualScore.IsSome), x.mv)));
 
