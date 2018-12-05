@@ -2,7 +2,7 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GamblingStat.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="MappingTableSize" Type="System.Int32" Scope="Application">
+    <Setting Name="MappingTableSize" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">8</Value>
     </Setting>
     <Setting Name="LookBehide" Type="System.Decimal" Scope="User">
