@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Services.Domain;
 using Services.Predictors;
+using Stateless.Graph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +11,23 @@ using System.Threading.Tasks;
 namespace Services.Tests
 {
     [TestClass]
-    public class DrTom2PredictorTest
+    public class DrTom3PredictorTest
     {
+        [TestMethod]
+        public void TestGraphGenerator()
+        {
+            var predictor = new DrTom3Predictor();
+            var dotGraphText = UmlDotGraph.Format(predictor.StateMachine.GetInfo());
+        }
+
         [TestMethod]
         public void initial_status_should_be_one()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13);
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
-            for(int i = 0; i < outputs.Count; i++)
+            for (int i = 0; i < outputs.Count; i++)
             {
                 var output = predictor.Predict(outputs, i);
                 outputs[i] = output;
@@ -33,7 +41,7 @@ namespace Services.Tests
         public void initial_status_should_be_one_and_same_result()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 13);
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -50,7 +58,7 @@ namespace Services.Tests
         public void if_result_not_changed_stay_at_one()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 14);
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -68,7 +76,7 @@ namespace Services.Tests
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 12)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -87,7 +95,7 @@ namespace Services.Tests
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -105,7 +113,7 @@ namespace Services.Tests
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 2));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -123,7 +131,7 @@ namespace Services.Tests
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 3));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -143,7 +151,7 @@ namespace Services.Tests
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -157,12 +165,12 @@ namespace Services.Tests
         }
 
         [TestMethod]
-        public void WhenResultNotChangedAfterTwoStatus_ThenStatusShouldChangedToOne()
+        public void WhenResultNotChangedAfterTwoStatus_ThenStatusShouldChangedToCMinus()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -171,7 +179,7 @@ namespace Services.Tests
                 outputs[i] = output;
             }
 
-            Assert.AreEqual(DrTom2State.One, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(DrTom2State.CMinus, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
             Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
         }
 
@@ -183,7 +191,7 @@ namespace Services.Tests
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -204,7 +212,7 @@ namespace Services.Tests
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -226,7 +234,7 @@ namespace Services.Tests
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 2));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -250,7 +258,7 @@ namespace Services.Tests
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -264,14 +272,14 @@ namespace Services.Tests
         }
 
         [TestMethod]
-        public void WhenSignChangedOnCMinus_ThenStatusShouldChangedTwo()
+        public void WhenSignChangedOnCMinus_ThenStatusShouldStayOnCMinus()
         {
             var inputs = Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 13)
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 2))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)
@@ -280,7 +288,7 @@ namespace Services.Tests
                 outputs[i] = output;
             }
 
-            Assert.AreEqual(DrTom2State.Two, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
+            Assert.AreEqual(DrTom2State.CMinus, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Status);
             Assert.AreEqual(Result.Win, outputs.Last().ResultPrediction.IfNoneUnsafe(() => null).Result);
         }
 
@@ -292,7 +300,7 @@ namespace Services.Tests
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 1))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Tiger), 2))
                 .Concat(Enumerable.Repeat(new GameStateInput(Score.Dragon, Score.Dragon), 2));
-            var predictor = new DrTom2Predictor();
+            var predictor = new DrTom3Predictor();
             var outputs = inputs.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
 
             for (int i = 0; i < outputs.Count; i++)

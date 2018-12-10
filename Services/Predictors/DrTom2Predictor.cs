@@ -27,7 +27,7 @@ namespace Services.Predictors
             var previousStates = gameStates.Take(index + 1).Reverse().Take(OneCheckSize)
                 .ToList();
 
-            DrTom2Status currentStatus = DrTom2Status.One;
+            DrTom2State currentStatus = DrTom2State.One;
 
             // if it the first prediction then init with 1
             if(previousStates[1].ResultPrediction.IsNone)
@@ -71,7 +71,7 @@ namespace Services.Predictors
 
             var finalStatus = currentStatus;
 
-            if(currentStatus == DrTom2Status.Two)
+            if(currentStatus == DrTom2State.Two)
             {
                 var lastC = from rp in previousStates[1].ResultPrediction
                             from ch in rp.CHistory
@@ -80,12 +80,12 @@ namespace Services.Predictors
                 finalStatus = lastC.Match(x =>
                 {
                     if (x == DrTomC.CMinus)
-                        return DrTom2Status.CMinus;
+                        return DrTom2State.CMinus;
                     else
-                        return DrTom2Status.CPlus;
+                        return DrTom2State.CPlus;
                 }, () =>
                 {
-                    return DrTom2Status.CMinus;
+                    return DrTom2State.CMinus;
                 });
             }
 
@@ -95,11 +95,11 @@ namespace Services.Predictors
             // if C+ opposite from last result
             switch (finalStatus)
             {
-                case DrTom2Status.One:
-                case DrTom2Status.CMinus:
+                case DrTom2State.One:
+                case DrTom2State.CMinus:
                     resultPrediction = currentState.ActualResult;
                     break;
-                case DrTom2Status.CPlus:
+                case DrTom2State.CPlus:
                     resultPrediction = currentState.ActualResult.Map(r => 
                     r == Result.Lose 
                     ? Result.Win 
@@ -132,23 +132,23 @@ namespace Services.Predictors
             return balance;
         }
 
-        private DrTom2Status CalculateStatusWhenSignNoChanged(
-            DrTom2Status previousDrTomStatus,
+        private DrTom2State CalculateStatusWhenSignNoChanged(
+            DrTom2State previousDrTomStatus,
             int signChangedCount)
         {
             if (signChangedCount == 2)
             {
-                if (previousDrTomStatus == DrTom2Status.One)
-                    return DrTom2Status.CMinus;
+                if (previousDrTomStatus == DrTom2State.One)
+                    return DrTom2State.CMinus;
             }
 
-            if (previousDrTomStatus == DrTom2Status.Two)
-                return DrTom2Status.One;
+            if (previousDrTomStatus == DrTom2State.Two)
+                return DrTom2State.One;
 
-            if (previousDrTomStatus == DrTom2Status.Two
-                || previousDrTomStatus == DrTom2Status.CPlus)
+            if (previousDrTomStatus == DrTom2State.Two
+                || previousDrTomStatus == DrTom2State.CPlus)
             {
-                return DrTom2Status.CMinus;
+                return DrTom2State.CMinus;
             }
 
             else
@@ -157,54 +157,54 @@ namespace Services.Predictors
             }
         }
 
-        private DrTom2Status CalculateStatusWhenSignChanged(
-            DrTom2Status previousDrTomStatus,
+        private DrTom2State CalculateStatusWhenSignChanged(
+            DrTom2State previousDrTomStatus,
             int signChangedCount)
         {
             if(signChangedCount == 2)
             {
-                if (previousDrTomStatus == DrTom2Status.One)
+                if (previousDrTomStatus == DrTom2State.One)
                 {
-                    return DrTom2Status.Two;
+                    return DrTom2State.Two;
                 }
             }
 
-            if (previousDrTomStatus == DrTom2Status.CMinus)
-                return DrTom2Status.Two;
+            if (previousDrTomStatus == DrTom2State.CMinus)
+                return DrTom2State.Two;
 
             if (signChangedCount == 1)
                 return previousDrTomStatus;
 
-            if (previousDrTomStatus == DrTom2Status.One
-                || previousDrTomStatus == DrTom2Status.CMinus)
-                return DrTom2Status.Two;
+            if (previousDrTomStatus == DrTom2State.One
+                || previousDrTomStatus == DrTom2State.CMinus)
+                return DrTom2State.Two;
             else
-                return DrTom2Status.CPlus;
+                return DrTom2State.CPlus;
         }
 
-        private Option<int> MapSignChanged(DrTom2Status current, Option<int> signChanged)
+        private Option<int> MapSignChanged(DrTom2State current, Option<int> signChanged)
         {
             if (signChanged == 1)
                 return signChanged;
 
             switch(current)
             {
-                case DrTom2Status.One:
-                case DrTom2Status.CMinus:
-                case DrTom2Status.CPlus:
+                case DrTom2State.One:
+                case DrTom2State.CMinus:
+                case DrTom2State.CPlus:
                     return 0;
                 default:
                     return signChanged;
             }
         }
 
-        private Option<DrTomC> MapToC(DrTom2Status finalStatus)
+        private Option<DrTomC> MapToC(DrTom2State finalStatus)
         {
             switch(finalStatus)
             {
-                case DrTom2Status.CMinus:
+                case DrTom2State.CMinus:
                     return DrTomC.CMinus;
-                case DrTom2Status.CPlus:
+                case DrTom2State.CPlus:
                     return DrTomC.CPlus;
                 default:
                     return None;

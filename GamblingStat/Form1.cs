@@ -67,7 +67,7 @@ namespace GamblingStat
                 new Anti2Predictor(),
             };
 
-            var resultPredictor = new DrTom2Predictor();
+            var resultPredictor = new DrTom3Predictor();
 
             _predictionService = new PredictionService(predictors, resultPredictor);
 
