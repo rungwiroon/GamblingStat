@@ -7,7 +7,7 @@ namespace Services.Domain
 {
     public class GameStateInput
     {
-        private Func<bool, Result> resultMapper => b => b ? Result.Win : Result.Lose;
+        private Func<bool, Result> ResultMapper => b => b ? Result.Win : Result.Lose;
 
         public Option<Score> ActualScore { get; protected set; }
 
@@ -19,7 +19,7 @@ namespace Services.Domain
             {
                 return from actualS in ActualScore
                        from betS in BetScore
-                       select resultMapper(actualS == betS);
+                       select ResultMapper(actualS == betS);
             }
         }
 
