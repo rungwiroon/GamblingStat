@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Services.Predictors
+namespace GamblingStat.Services.Predictors
 {
     public class Constants
     {

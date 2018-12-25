@@ -1,13 +1,13 @@
 ﻿using LanguageExt;
-using Services.Domain;
-using Services.Predictors;
+using GamblingStat.Services.Domain;
+using GamblingStat.Services.Predictors;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Prelude;
 
-namespace Services
+namespace GamblingStat.Services
 {
     public class PredictionService
     {

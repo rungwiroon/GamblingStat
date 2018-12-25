@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LanguageExt;
-using Services.Domain;
+using GamblingStat.Services.Domain;
 using Stateless;
 using static LanguageExt.Prelude;
 
-namespace Services.Predictors
+namespace GamblingStat.Services.Predictors
 {
     public class DrTom3Predictor : IPredictor
     {

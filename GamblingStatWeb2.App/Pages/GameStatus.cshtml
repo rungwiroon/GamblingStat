@@ -1,0 +1,182 @@
+﻿@using GamblingStatWeb2.App.Services
+@using GamblingStat.Services.Domain
+@using GamblingStat.Services.Predictors
+@using GamblingStat.Services
+@using LanguageExt
+@page "/gamestatus"
+
+<h1>Game status</h1>
+
+@if (gameStates == null)
+{
+<p><em>Loading...</em></p>
+}
+else
+{
+<p>
+    <button class="btn btn-primary" onclick="@(() => AddActual(Score.Dragon))">Dragon</button>
+    <button class="btn btn-primary" onclick="@(() => AddActual(Score.Tiger))">Tiger</button>
+</p>
+
+<p>
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        Button with data-target
+    </button>
+</p>
+<div class="collapse" id="collapseExample">
+    <div class="card card-body">
+        <input type="number" />
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Actual</th>
+                    <th>Bet</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var gameState in gameStates)
+                    {
+                <tr>
+                    <td>@gameState.No</td>
+                    <td>@gameState.ActualScore</td>
+                    <td>@gameState.BetScore</td>
+                    <td>@gameState.Result</td>
+                </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-sm">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Score</th>
+                    <th>Win rate</th>
+                    <th>Algorithm type</th>
+                    <th>Wrong count</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var predictionResult in _predictionResults)
+                    {
+                <tr>
+                    <td>@predictionResult.PredictionScore</td>
+                    <td>@predictionResult.WinRate</td>
+                    <td>@predictionResult.AlgorithmType</td>
+                    <td>@predictionResult.WrongCount</td>
+                </tr>
+                    }
+            </tbody>
+        </table>
+    </div>
+</div>
+}
+
+@functions {
+    private List<GameState> gameStates;
+    private PredictionService _predictionService;
+    private List<PredictionModel> _predictionResults = new List<PredictionModel>(0);
+
+    private const string _dragonText = "D";
+    private const string _tigerText = "T";
+
+    private const string _winText = "W";
+    private const string _loseText = "L";
+
+    protected override void OnInit()
+    {
+        gameStates = new List<GameState>
+{
+new GameState()
+{
+No = 1
+},
+new GameState()
+{
+No = 2
+}
+};
+
+        var predictors = new IPredictor[]
+                {
+new SameDifferentPredictor(),
+new Anti12Predictor(),
+new Anti2Predictor(),
+                };
+
+        var resultPredictor = new DrTom3Predictor();
+
+        _predictionService = new PredictionService(predictors, resultPredictor);
+    }
+
+    private void AddActual(Score score)
+    {
+        gameStates.Add(new GameState()
+        {
+            No = gameStates.Count + 1,
+            ActualScore = score.ToString()
+        });
+
+        Predict();
+    }
+
+    private Option<Score> MapScore(string score)
+    {
+        if (string.IsNullOrEmpty(score))
+            return Option<Score>.None;
+
+        return score == _dragonText ? Score.Dragon : Score.Tiger;
+    }
+
+    private void Predict()
+    {
+        var predictionResults = _predictionService.Predict(
+            gameStates
+            .Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
+            8,
+            15);
+
+        var scorePredictions = predictionResults
+                .GameStatesWithScorePrediction.Select(pr =>
+                (
+                    gss: pr.GameStates.Reverse().Skip(1).ToList(),
+                    gs: pr.GameStates.Last(),
+                    gss2: pr.GameStates,
+                    pr.Stat
+                ))
+                .ToList();
+
+        var gameStates2 = scorePredictions.SelectMany(pr => pr.gs.ScorePredictions,
+            (pr, p) => (pr, prediction: p.Value));
+
+        _predictionResults = gameStates2
+        .Where(gs => gs.prediction.Name != Constants.MappingTablePredctionName)
+        .Select(pr => new Tuple<Score, PredictionStat>
+        (
+            pr.prediction.Score,
+            pr.pr.Stat.PredictionStats[pr.prediction.Name]
+        ))
+        .Where(pr => pr.Item2.Wrong3AndMoreCount == 0
+            && pr.Item2.WinRate > 80)
+            .Select(pr => new PredictionModel()
+            {
+                PredictionScore = pr.Item1 == Score.Tiger ? _tigerText : _dragonText,
+                WinRate = pr.Item2.WinRate,
+                //MappingValue = pr.mv,
+                AlgorithmType = pr.Item2.Name,
+                WrongCount = pr.Item2.MaxConsecutiveWrong
+            })
+            .OrderByDescending(p => p.WinRate)
+                .ThenBy(p => p.WrongCount)
+                .ThenBy(p => p.AlgorithmType)
+            .ToList();
+    }
+}

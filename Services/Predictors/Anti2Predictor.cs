@@ -1,11 +1,11 @@
 ﻿using LanguageExt;
-using Services.Domain;
+using GamblingStat.Services.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Services.Predictors
+namespace GamblingStat.Services.Predictors
 {
     public class Anti2Predictor : IPredictor
     {

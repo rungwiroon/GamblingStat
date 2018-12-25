@@ -1,9 +1,9 @@
-﻿using Services.Domain;
+﻿using GamblingStat.Services.Domain;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Services
+namespace GamblingStat.Services
 {
     public static class Helper
     {

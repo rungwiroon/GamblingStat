@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using LanguageExt;
 using static LanguageExt.Prelude;
-using Services.Domain;
+using GamblingStat.Services.Domain;
 
-namespace Services.Predictors
+namespace GamblingStat.Services.Predictors
 {
     public class DrTom2Predictor : IPredictor
     {

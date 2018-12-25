@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using LanguageExt;
-using Services.Domain;
+using GamblingStat.Services.Domain;
 
-namespace Services.Predictors
+namespace GamblingStat.Services.Predictors
 {
     public class SameDifferentPredictor : IPredictor
     {

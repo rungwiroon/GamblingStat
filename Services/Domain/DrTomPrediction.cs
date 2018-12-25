@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Services.Domain
+namespace GamblingStat.Services.Domain
 {
     public enum DrTomCircuit
     {

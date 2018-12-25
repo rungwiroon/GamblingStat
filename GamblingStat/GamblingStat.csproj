@@ -146,9 +146,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Services\Services.csproj">
+    <ProjectReference Include="..\Services\GamblingStat.Services.csproj">
       <Project>{654b2b04-fb1e-42bb-96e0-7916c7f240f0}</Project>
-      <Name>Services</Name>
+      <Name>GamblingStat.Services</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
