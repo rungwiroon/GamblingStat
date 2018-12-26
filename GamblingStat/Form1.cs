@@ -1,9 +1,9 @@
 ﻿using GamblingStat.Models;
 using GamblingStat.Properties;
 using LanguageExt;
-using Services;
-using Services.Domain;
-using Services.Predictors;
+using GamblingStat.Services;
+using GamblingStat.Services.Domain;
+using GamblingStat.Services.Predictors;
 using System;
 using System.Collections.Generic;
 using System.Data;

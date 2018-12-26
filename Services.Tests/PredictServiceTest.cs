@@ -4,8 +4,9 @@ using System.Linq;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Services.Domain;
-using Services.Predictors;
+using GamblingStat.Services.Domain;
+using GamblingStat.Services.Predictors;
+using GamblingStat.Services;
 
 namespace Services.Tests
 {

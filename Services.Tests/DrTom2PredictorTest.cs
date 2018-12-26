@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Services.Domain;
-using Services.Predictors;
+using GamblingStat.Services.Domain;
+using GamblingStat.Services.Predictors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

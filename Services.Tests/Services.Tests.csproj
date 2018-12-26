@@ -78,7 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Services\GamblingStat.Services.csproj">
-      <Project>{654b2b04-fb1e-42bb-96e0-7916c7f240f0}</Project>
+      <Project>{1e995508-a2b2-46eb-83a4-7acdc706f0a6}</Project>
       <Name>GamblingStat.Services</Name>
     </ProjectReference>
   </ItemGroup>

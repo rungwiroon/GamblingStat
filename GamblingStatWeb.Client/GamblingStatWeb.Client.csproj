@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GamblingStatWeb.Shared\GamblingStatWeb.Shared.csproj" />
-    <ProjectReference Include="..\Services\Services.csproj" />
+    <ProjectReference Include="..\Services\GamblingStat.Services.csproj" />
   </ItemGroup>
 
 </Project>
