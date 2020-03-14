@@ -1,13 +1,8 @@
-﻿@using GamblingStatWeb2.App.Services
+﻿@using GamblingStatWeb.Shared
 @using GamblingStat.Services.Domain
 @using GamblingStat.Services.Predictors
 @using GamblingStat.Services
 @using LanguageExt
-@using ChartJs.Blazor.ChartJS.PieChart
-@using ChartJs.Blazor.Charts
-@using ChartJs.Blazor.ChartJS.Common
-@page "/gamestatus"
-@addTagHelper *, BlazorStrap
 
 <h1>Game status</h1>
 
@@ -18,19 +13,21 @@
 else
 {
     <p>
-        <button class="btn btn-primary" onclick="@(() => AddActual(Score.Dragon))">Dragon</button>
-        <button class="btn btn-primary" onclick="@(() => AddActual(Score.Tiger))">Tiger</button>
+        <button class="btn btn-primary" @onclick="@(() => AddActual(Score.Dragon))">Dragon</button>
+        <button class="btn btn-primary" @onclick="@(() => AddActual(Score.Tiger))">Tiger</button>
     </p>
 
     <p>
-        <BlazorButton OnClick="@OnClick">Advance settings</BlazorButton>
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+            Button with data-target
+        </button>
     </p>
-
-    <Collapse IsOpen="@isOpen">
+    <div class="collapse" id="collapseExample">
         <div class="card card-body">
             <input type="number" />
         </div>
-    </Collapse>
+    </div>
+
 
     <div class="row">
         <div class="col-sm">
@@ -80,11 +77,9 @@ else
             </table>
         </div>
     </div>
-
-    <ChartJsPieChart ref="pieChartJs" Config="@pieChartConfig" Width="600" Height="300" />
 }
 
-@functions {
+@code {
     private List<GameState> gameStates;
     private PredictionService _predictionService;
     private List<PredictionModel> _predictionResults = new List<PredictionModel>(0);
@@ -95,69 +90,30 @@ else
     private const string _winText = "W";
     private const string _loseText = "L";
 
-    private bool isOpen = false;
-
-    private PieChartConfig pieChartConfig { get; set; }
-    private ChartJsPieChart pieChartJs;
-
-    protected override void OnInit()
+    protected override void OnInitialized()
     {
         gameStates = new List<GameState>
-{
-new GameState()
-{
-No = 1
-},
-new GameState()
-{
-No = 2
-}
-};
+    {
+            new GameState()
+            {
+                No = 1
+            },
+            new GameState()
+            {
+                No = 2
+            }
+        };
 
         var predictors = new IPredictor[]
-                {
-new SameDifferentPredictor(),
-new Anti12Predictor(),
-new Anti2Predictor(),
-                };
+        {
+            new SameDifferentPredictor(),
+            new Anti12Predictor(),
+            new Anti2Predictor(),
+            };
 
         var resultPredictor = new DrTom3Predictor();
 
         _predictionService = new PredictionService(predictors, resultPredictor);
-
-        pieChartConfig = pieChartConfig ?? new PieChartConfig
-        {
-            CanvasId = "myFirstPieChart",
-            Options = new PieChartOptions
-            {
-                Text = "Sample chart from Blazor",
-                Display = true,
-                Responsive = true,
-                Animation = new DoughnutAnimation { AnimateRotate = true, AnimateScale = true }
-            },
-            Data = new PieChartData
-            {
-                Labels = new List<string> { "A", "B", "C", "D" },
-                Datasets = new List<PieChartDataset>
-                {
-                    new PieChartDataset
-                    {
-                        BackgroundColor = new[] {"#ff6384", "#55ee84", "#4463ff", "#efefef"},
-                        Data = new List<int> {4, 5, 6, 7},
-                        Label = "Light Red",
-                        BorderWidth = 0,
-                        HoverBackgroundColor = new[] {"#f06384"},
-                        HoverBorderColor = new[] {"#f06384"},
-                        HoverBorderWidth = new[] {1}, BorderColor = "#ffffff",
-                    }
-                }
-            }
-        };
-    }
-
-    protected override void OnAfterRender()
-    {
-        pieChartJs.Reload();
     }
 
     private void AddActual(Score score)
@@ -182,20 +138,19 @@ new Anti2Predictor(),
     private void Predict()
     {
         var predictionResults = _predictionService.Predict(
-            gameStates
-            .Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
+            gameStates.Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
             8,
             15);
 
         var scorePredictions = predictionResults
-                .GameStatesWithScorePrediction.Select(pr =>
-                (
-                    gss: pr.GameStates.Reverse().Skip(1).ToList(),
-                    gs: pr.GameStates.Last(),
-                    gss2: pr.GameStates,
-                    pr.Stat
-                ))
-                .ToList();
+            .GameStatesWithScorePrediction.Select(pr =>
+            (
+                gss: pr.GameStates.Reverse().Skip(1).ToList(),
+                gs: pr.GameStates.Last(),
+                gss2: pr.GameStates,
+                pr.Stat
+            ))
+            .ToList();
 
         var gameStates2 = scorePredictions.SelectMany(pr => pr.gs.ScorePredictions,
             (pr, p) => (pr, prediction: p.Value));
@@ -209,23 +164,17 @@ new Anti2Predictor(),
         ))
         .Where(pr => pr.Item2.Wrong3AndMoreCount == 0
             && pr.Item2.WinRate > 80)
-            .Select(pr => new PredictionModel()
-            {
-                PredictionScore = pr.Item1 == Score.Tiger ? _tigerText : _dragonText,
-                WinRate = pr.Item2.WinRate,
-                //MappingValue = pr.mv,
-                AlgorithmType = pr.Item2.Name,
-                WrongCount = pr.Item2.MaxConsecutiveWrong
-            })
-            .OrderByDescending(p => p.WinRate)
-                .ThenBy(p => p.WrongCount)
-                .ThenBy(p => p.AlgorithmType)
-            .ToList();
-    }
-
-    void OnClick(UIMouseEventArgs e)
-    {
-        isOpen = !isOpen;
-        StateHasChanged();
+        .Select(pr => new PredictionModel()
+        {
+            PredictionScore = pr.Item1 == Score.Tiger ? _tigerText : _dragonText,
+            WinRate = pr.Item2.WinRate,
+            //MappingValue = pr.mv,
+            AlgorithmType = pr.Item2.Name,
+            WrongCount = pr.Item2.MaxConsecutiveWrong
+        })
+        .OrderByDescending(p => p.WinRate)
+            .ThenBy(p => p.WrongCount)
+            .ThenBy(p => p.AlgorithmType)
+        .ToList();
     }
 }

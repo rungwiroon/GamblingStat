@@ -13,9 +13,9 @@ namespace GamblingStat.Services.Predictors
     {
         public StateMachine<DrTom3State, DrTom3Trigger> StateMachine { get; private set; }
 
-        private const int InitialOneTwoSize = 3;
+        //private const int InitialOneTwoSize = 3;
         private const int OneCheckSize = 4;
-        private const int CheckCSize = 2;
+        //private const int CheckCSize = 2;
 
         private const int StartIndex = 12;
 
@@ -78,16 +78,14 @@ namespace GamblingStat.Services.Predictors
                             from ch in rp.CHistory
                             select ch;
 
-                finalStatus = lastC.Match(x =>
-                {
-                    if (x == DrTomC.CMinus)
-                        return DrTom2State.CMinus;
-                    else
-                        return DrTom2State.CPlus;
-                }, () =>
-                {
-                    return DrTom2State.CMinus;
-                });
+                finalStatus = lastC.Match(
+                    Some: x =>
+                    {
+                        return x == DrTomC.CMinus
+                            ? DrTom2State.CMinus
+                            : DrTom2State.CPlus;
+                    },
+                    None: () => DrTom2State.CMinus);
             }
 
             switch (finalStatus)
@@ -113,53 +111,33 @@ namespace GamblingStat.Services.Predictors
                         None, MapToC(finalStatus), state, resultPrediction));
         }
 
-        private DrTom2State MapState(DrTom3State state)
-        {
-            switch (state)
+        private DrTom2State MapState(DrTom3State state) =>
+            state switch
             {
-                case DrTom3State.CMinus:
-                    return DrTom2State.CMinus;
-                case DrTom3State.CPlus:
-                    return DrTom2State.CPlus;
-                case DrTom3State.One:
-                    return DrTom2State.One;
-                case DrTom3State.Two:
-                    return DrTom2State.Two;
-                default:
-                    return DrTom2State.One;
-            }
-        }
+                DrTom3State.CMinus => DrTom2State.CMinus,
+                DrTom3State.CPlus => DrTom2State.CPlus,
+                DrTom3State.One => DrTom2State.One,
+                DrTom3State.Two => DrTom2State.Two,
+                _ => DrTom2State.One,
+            };
 
-        private DrTom2State MapState(DrTom3State state, DrTom3State previousState)
-        {
-            switch(state)
+        private DrTom2State MapState(DrTom3State state, DrTom3State previousState) =>
+            state switch
             {
-                case DrTom3State.CMinus:
-                    return DrTom2State.CMinus;
-                case DrTom3State.CPlus:
-                    return DrTom2State.CPlus;
-                case DrTom3State.One:
-                    return DrTom2State.One;
-                case DrTom3State.SignChanged:
-                    return MapState(previousState);
-                case DrTom3State.Two:
-                    return DrTom2State.Two;
-                default:
-                    return DrTom2State.One;
-            }
-        }
+                DrTom3State.CMinus => DrTom2State.CMinus,
+                DrTom3State.CPlus => DrTom2State.CPlus,
+                DrTom3State.One => DrTom2State.One,
+                DrTom3State.SignChanged => MapState(previousState),
+                DrTom3State.Two => DrTom2State.Two,
+                _ => DrTom2State.One,
+            };
 
-        private Option<DrTomC> MapToC(DrTom2State finalStatus)
-        {
-            switch (finalStatus)
+        private Option<DrTomC> MapToC(DrTom2State finalStatus) =>
+            finalStatus switch
             {
-                case DrTom2State.CMinus:
-                    return DrTomC.CMinus;
-                case DrTom2State.CPlus:
-                    return DrTomC.CPlus;
-                default:
-                    return None;
-            }
-        }
+                DrTom2State.CMinus => DrTomC.CMinus,
+                DrTom2State.CPlus => DrTomC.CPlus,
+                _ => None,
+            };
     }
 }

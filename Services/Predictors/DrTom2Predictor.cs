@@ -187,7 +187,7 @@ namespace GamblingStat.Services.Predictors
             if (signChanged == 1)
                 return signChanged;
 
-            switch(current)
+            switch (current)
             {
                 case DrTom2State.One:
                 case DrTom2State.CMinus:
@@ -200,15 +200,12 @@ namespace GamblingStat.Services.Predictors
 
         private Option<DrTomC> MapToC(DrTom2State finalStatus)
         {
-            switch(finalStatus)
+            return finalStatus switch
             {
-                case DrTom2State.CMinus:
-                    return DrTomC.CMinus;
-                case DrTom2State.CPlus:
-                    return DrTomC.CPlus;
-                default:
-                    return None;
-            }
+                DrTom2State.CMinus => DrTomC.CMinus,
+                DrTom2State.CPlus => DrTomC.CPlus,
+                _ => None,
+            };
         }
     }
 }
