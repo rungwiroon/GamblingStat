@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using LanguageExt;
 using GamblingStat.Services.Domain;
 using Stateless;
 using static LanguageExt.Prelude;
+using System.Reactive.Linq;
 
 namespace GamblingStat.Services.Predictors
 {
@@ -13,10 +12,7 @@ namespace GamblingStat.Services.Predictors
     {
         public StateMachine<DrTom3State, DrTom3Trigger> StateMachine { get; private set; }
 
-        //private const int InitialOneTwoSize = 3;
         private const int OneCheckSize = 4;
-        //private const int CheckCSize = 2;
-
         private const int StartIndex = 12;
 
         public DrTom3Predictor()
@@ -43,72 +39,84 @@ namespace GamblingStat.Services.Predictors
                 .Ignore(DrTom3Trigger.DifferentSign);
         }
 
-        public GameStateOutput Predict(IEnumerable<GameStateOutput> gameStates, int index)
+        public IObservable<GameStateOutput> Predict(IObservable<GameStateOutput> gameStates)
         {
-            var currentGameState = gameStates.ElementAt(index);
-
-            if (index < StartIndex)
-                return currentGameState;
-
-            var previousStates = gameStates.Take(index + 1).Reverse().Take(OneCheckSize)
-                .ToList();
-
-            // is sign changed
-            var signChanged =   from ar1 in currentGameState.ActualResult
-                                from ar2 in previousStates[1].ActualResult
-                                from rp in previousStates[1].ResultPrediction
-                                where ar1 != ar2
-                                select rp.SignChanged.Match(sc => sc + 1, () => 1);
-
-            var currentState = StateMachine.State;
-
-            signChanged.Match(
-                x => StateMachine.Fire(DrTom3Trigger.DifferentSign),
-                () => StateMachine.Fire(DrTom3Trigger.SameSign));
-
-            var state = MapState(StateMachine.State, currentState);
-
-            Option<Result> resultPrediction = None;
-
-            var finalStatus = state;
-
-            if (state == DrTom2State.Two)
-            {
-                var lastC = from rp in previousStates[1].ResultPrediction
-                            from ch in rp.CHistory
-                            select ch;
-
-                finalStatus = lastC.Match(
-                    Some: x =>
+            return gameStates
+                .Scan(
+                    new Lst<GameStateOutput>(),
+                    (acc, currItem) =>
                     {
-                        return x == DrTomC.CMinus
-                            ? DrTom2State.CMinus
-                            : DrTom2State.CPlus;
-                    },
-                    None: () => DrTom2State.CMinus);
-            }
+                        if (currItem.Index >= StartIndex)
+                            currItem = Calculate(acc[^1], currItem);
 
-            switch (finalStatus)
+                        return acc.Add(currItem);
+                    })
+                .Select(list => list.Last());
+
+            //var previousStates = gameStates.Take(index + 1).Reverse().Take(OneCheckSize)
+            //    .ToList();
+
+            GameStateOutput Calculate(
+                GameStateOutput minus1Item,
+                GameStateOutput currItem)
             {
-                case DrTom2State.One:
-                case DrTom2State.CMinus:
-                    resultPrediction = currentGameState.ActualResult;
-                    break;
-                case DrTom2State.CPlus:
-                    resultPrediction = currentGameState.ActualResult.Map(r =>
-                    r == Result.Lose
-                    ? Result.Win
-                    : Result.Lose);
-                    break;
-            }
+                // is sign changed
+                var signChanged = from ar1 in currItem.ActualResult
+                                  from ar2 in minus1Item.ActualResult
+                                  from rp in minus1Item.ResultPrediction
+                                  where ar1 != ar2
+                                  select rp.SignChanged.Match(sc => sc + 1, () => 1);
 
-            return new GameStateOutput(
-                    currentGameState.Index,
-                    currentGameState.ActualScore,
-                    currentGameState.BetScore,
-                    currentGameState.ScorePredictions,
-                    new DrTom2Prediction(
-                        None, MapToC(finalStatus), state, resultPrediction));
+                var currentState = StateMachine.State;
+
+                signChanged.Match(
+                    x => StateMachine.Fire(DrTom3Trigger.DifferentSign),
+                    () => StateMachine.Fire(DrTom3Trigger.SameSign));
+
+                var state = MapState(StateMachine.State, currentState);
+
+                Option<Result> resultPrediction = None;
+
+                var finalStatus = state;
+
+                if (state == DrTom2State.Two)
+                {
+                    var lastC = from rp in minus1Item.ResultPrediction
+                                from ch in rp.CHistory
+                                select ch;
+
+                    finalStatus = lastC.Match(
+                        Some: x =>
+                        {
+                            return x == DrTomC.CMinus
+                                ? DrTom2State.CMinus
+                                : DrTom2State.CPlus;
+                        },
+                        None: () => DrTom2State.CMinus);
+                }
+
+                switch (finalStatus)
+                {
+                    case DrTom2State.One:
+                    case DrTom2State.CMinus:
+                        resultPrediction = currItem.ActualResult;
+                        break;
+                    case DrTom2State.CPlus:
+                        resultPrediction = currItem.ActualResult.Map(r =>
+                        r == Result.Lose
+                            ? Result.Win
+                            : Result.Lose);
+                        break;
+                }
+
+                return new GameStateOutput(
+                        currItem.Index,
+                        currItem.ActualScore,
+                        currItem.BetScore,
+                        currItem.ScorePredictions,
+                        new DrTom2Prediction(
+                            None, MapToC(finalStatus), state, resultPrediction));
+            }
         }
 
         private DrTom2State MapState(DrTom3State state) =>

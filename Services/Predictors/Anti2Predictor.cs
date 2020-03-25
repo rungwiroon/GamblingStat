@@ -1,39 +1,47 @@
 ﻿using LanguageExt;
 using GamblingStat.Services.Domain;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reactive.Linq;
 
 namespace GamblingStat.Services.Predictors
 {
     public class Anti2Predictor : IPredictor
     {
-        public GameStateOutput Predict(IEnumerable<GameStateOutput> gameStates, int index)
+        public IObservable<GameStateOutput> Predict(IObservable<GameStateOutput> gameStates)
         {
-            var currentState = gameStates.ElementAt(index);
+            return gameStates
+                .Scan(
+                    new Lst<GameStateOutput>(),
+                    (acc, currItem) =>
+                    {
+                        if (currItem.Index > 2)
+                            currItem = Calculate(acc.Last(), currItem);
 
-            if (index <= 2)
-                return currentState;
+                        return acc.Add(currItem);
+                    })
+                .Select(list => list.Last());
 
-            var score = from r in gameStates.ElementAt(index - 1).ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result)
-                        from s in currentState.ScorePredictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score)
-                        select r == Result.Lose
-                        ? s == Score.Dragon ? Score.Tiger : Score.Dragon
-                        : s;
-
-            return score.Match(x =>
+            static GameStateOutput Calculate(GameStateOutput prevItem, GameStateOutput currItem)
             {
-                return new GameStateOutput
-                (
-                    index,
-                    currentState.ActualScore,
-                    currentState.BetScore,
-                    currentState.ScorePredictions.Select(p => (p.Value.Name, p.Value.Score))
-                        .Append((Constants.Anti2PredictionName, x))
-                        //.Append((Constants.InvertedAnti2PredictionName, Helper.InvertScoreMapper(x)))
-                );
-            }, () => currentState);
+                var score = from r in prevItem.ScorePredictions.Find(Constants.SameDiffPredictionName).Bind(x => x.Result)
+                            from s in currItem.ScorePredictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score)
+                            select r == Result.Lose
+                                ? s == Score.Dragon ? Score.Tiger : Score.Dragon
+                                : s;
+
+                return score.Match(
+                    Some: x =>
+                        new GameStateOutput
+                        (
+                            currItem.Index,
+                            currItem.ActualScore,
+                            currItem.BetScore,
+                            currItem.ScorePredictions.Select(p => (p.Value.Name, p.Value.Score))
+                                .Append((Constants.Anti2PredictionName, x))
+                        ),
+                    None: () => currItem);
+            }
         }
     }
 }

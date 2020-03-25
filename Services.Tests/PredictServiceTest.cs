@@ -97,7 +97,7 @@ namespace Services.Tests
             Assert.AreEqual(scores.Count() + 1, result.Count());
 
             var predictResult = result.Last();
-            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score));
+            Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.MappingTablePredictionName).Map(x => x.Score));
             Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.SameDiffPredictionName).Map(x => x.Score));
             Assert.AreEqual(Score.Tiger, predictResult.ScorePredictions.Find(Constants.Anti12PredictionName).Map(x => x.Score));
             Assert.AreEqual(Score.Dragon, predictResult.ScorePredictions.Find(Constants.Anti2PredictionName).Map(x => x.Score));

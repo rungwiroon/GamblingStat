@@ -3,10 +3,12 @@
 @using GamblingStat.Services.Predictors
 @using GamblingStat.Services
 @using LanguageExt
+@using System.Reactive.Subjects;
+@using System.Reactive.Linq;
 
 <h1>Game status</h1>
 
-@if (gameStates == null)
+@if (gameStateList == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -41,7 +43,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var gameState in gameStates)
+                    @foreach (var gameState in gameStateList)
                     {
                         <tr>
                             <td>@gameState.No</td>
@@ -64,7 +66,7 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var predictionResult in _predictionResults)
+                    @foreach (var predictionResult in predictionResults)
                     {
                         <tr>
                             <td>@predictionResult.PredictionScore</td>
@@ -80,9 +82,12 @@ else
 }
 
 @code {
-    private List<GameState> gameStates;
+    private Subject<GameState> subject;
     private PredictionService _predictionService;
-    private List<PredictionModel> _predictionResults = new List<PredictionModel>(0);
+
+    private Lst<GameState> gameStateList;
+    private IEnumerable<PredictionModel> predictionResults = Enumerable.Empty<PredictionModel>();
+    private Lst<GameStateOutputGroup> gameStateOutputList;
 
     private const string _dragonText = "D";
     private const string _tigerText = "T";
@@ -92,37 +97,49 @@ else
 
     protected override void OnInitialized()
     {
-        gameStates = new List<GameState>
-    {
-            new GameState()
-            {
-                No = 1
-            },
-            new GameState()
-            {
-                No = 2
-            }
-        };
+        subject = new Subject<GameState>();
 
         var predictors = new IPredictor[]
         {
             new SameDifferentPredictor(),
             new Anti12Predictor(),
             new Anti2Predictor(),
-            };
+        };
 
         var resultPredictor = new DrTom3Predictor();
 
         _predictionService = new PredictionService(predictors, resultPredictor);
+
+        _predictionService.Predict(
+            subject.AsObservable().Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
+            8,
+            15)
+            .Subscribe(output =>
+            {
+                predictionResults = output.GameStateWithScorePredictions
+                    //.OrderBy(scorePrediction => scorePrediction.Stat.Select(s => s.PredictionStats.)
+                    .SelectMany(scorePrediction =>
+                        scorePrediction.GameState.ScorePredictions
+                            .ToSeq()
+                            .Select(sp => new PredictionModel()
+                            {
+                                AlgorithmType = sp.Value.Name,
+                                PredictionScore = sp.Value.Score.ToString(),
+                            }));
+            });
     }
 
     private void AddActual(Score score)
     {
-        gameStates.Add(new GameState()
+        var newGameState = new GameState()
         {
-            No = gameStates.Count + 1,
+            No = gameStateList.Count + 1,
             ActualScore = score.ToString()
-        });
+        };
+
+        gameStateList = gameStateList.Add(newGameState);
+
+        subject.OnNext(newGameState);
 
         Predict();
     }
@@ -137,44 +154,44 @@ else
 
     private void Predict()
     {
-        var predictionResults = _predictionService.Predict(
-            gameStates.Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
-            8,
-            15);
+        //var predictionResults = _predictionService.Predict(
+        //    gameStates.Select(sb => new GameStateInput(MapScore(sb.ActualScore), MapScore(sb.BetScore))),
+        //    8,
+        //    15);
 
-        var scorePredictions = predictionResults
-            .GameStatesWithScorePrediction.Select(pr =>
-            (
-                gss: pr.GameStates.Reverse().Skip(1).ToList(),
-                gs: pr.GameStates.Last(),
-                gss2: pr.GameStates,
-                pr.Stat
-            ))
-            .ToList();
+        //var scorePredictions = predictionResults
+        //    .GameStatesWithScorePrediction.Select(pr =>
+        //    (
+        //        gss: pr.GameStates.Reverse().Skip(1).ToList(),
+        //        gs: pr.GameStates.Last(),
+        //        gss2: pr.GameStates,
+        //        pr.Stat
+        //    ))
+        //    .ToList();
 
-        var gameStates2 = scorePredictions.SelectMany(pr => pr.gs.ScorePredictions,
-            (pr, p) => (pr, prediction: p.Value));
+        //var gameStates2 = scorePredictions.SelectMany(pr => pr.gs.ScorePredictions,
+        //    (pr, p) => (pr, prediction: p.Value));
 
-        _predictionResults = gameStates2
-        .Where(gs => gs.prediction.Name != Constants.MappingTablePredctionName)
-        .Select(pr => new Tuple<Score, PredictionStat>
-        (
-            pr.prediction.Score,
-            pr.pr.Stat.PredictionStats[pr.prediction.Name]
-        ))
-        .Where(pr => pr.Item2.Wrong3AndMoreCount == 0
-            && pr.Item2.WinRate > 80)
-        .Select(pr => new PredictionModel()
-        {
-            PredictionScore = pr.Item1 == Score.Tiger ? _tigerText : _dragonText,
-            WinRate = pr.Item2.WinRate,
-            //MappingValue = pr.mv,
-            AlgorithmType = pr.Item2.Name,
-            WrongCount = pr.Item2.MaxConsecutiveWrong
-        })
-        .OrderByDescending(p => p.WinRate)
-            .ThenBy(p => p.WrongCount)
-            .ThenBy(p => p.AlgorithmType)
-        .ToList();
+        //_predictionResults = gameStates2
+        //.Where(gs => gs.prediction.Name != Constants.MappingTablePredctionName)
+        //.Select(pr => new Tuple<Score, PredictionStat>
+        //(
+        //    pr.prediction.Score,
+        //    pr.pr.Stat.PredictionStats[pr.prediction.Name]
+        //))
+        //.Where(pr => pr.Item2.Wrong3AndMoreCount == 0
+        //    && pr.Item2.WinRate > 80)
+        //.Select(pr => new PredictionModel()
+        //{
+        //    PredictionScore = pr.Item1 == Score.Tiger ? _tigerText : _dragonText,
+        //    WinRate = pr.Item2.WinRate,
+        //    //MappingValue = pr.mv,
+        //    AlgorithmType = pr.Item2.Name,
+        //    WrongCount = pr.Item2.MaxConsecutiveWrong
+        //})
+        //.OrderByDescending(p => p.WinRate)
+        //    .ThenBy(p => p.WrongCount)
+        //    .ThenBy(p => p.AlgorithmType)
+        //.ToList();
     }
 }

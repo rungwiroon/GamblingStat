@@ -1,41 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using LanguageExt;
 using GamblingStat.Services.Domain;
+using System.Reactive.Linq;
 
 namespace GamblingStat.Services.Predictors
 {
     public class SameDifferentPredictor : IPredictor
     {
-        public GameStateOutput Predict(IEnumerable<GameStateOutput> gameStates, int index)
+        public IObservable<GameStateOutput> Predict(IObservable<GameStateOutput> gameStates)
         {
-            var currentState = gameStates.ElementAt(index);
+            return gameStates
+                .Scan(
+                    new Lst<GameStateOutput>(),
+                    (acc, currItem) =>
+                    {
+                        if (currItem.Index > 1)
+                            currItem = Calculate(acc[^2], acc[^1], currItem);
 
-            if (index <= 1)
-                return currentState;
+                        return acc.Add(currItem);
+                    })
+                .Select(list => list.Last());
 
-            var score = from r in gameStates.ElementAt(index - 1).ScorePredictions.Find(Constants.MappingTablePredctionName).Bind(x => x.Result)
-                        from s in currentState.ScorePredictions.Find(Constants.MappingTablePredctionName).Map(x => x.Score)
-                        select r == Result.Lose 
-                        ? (s == Score.Tiger ? Score.Dragon : Score.Tiger) 
-                        : s;
-
-            GameStateOutput newState = currentState;
-
-            return score.Match(x =>
+            static GameStateOutput Calculate(
+                GameStateOutput minus2Item, 
+                GameStateOutput minus1Item, 
+                GameStateOutput currItem)
             {
-                return new GameStateOutput
-                (
-                    index,
-                    currentState.ActualScore,
-                    currentState.BetScore,
-                    currentState.ScorePredictions.Select(p => (p.Value.Name, p.Value.Score))
-                        .Append((Constants.SameDiffPredictionName, x))
-                        //.Append((Constants.InvertedSameDiffPredictionName, Helper.InvertScoreMapper(x)))
-                );
-            }, () => currentState);
+                var score = from r in minus1Item.ScorePredictions.Find(Constants.MappingTablePredictionName).Bind(x => x.Result)
+                            from s in currItem.ScorePredictions.Find(Constants.MappingTablePredictionName).Map(x => x.Score)
+                            select r == Result.Lose
+                            ? (s == Score.Tiger ? Score.Dragon : Score.Tiger)
+                            : s;
+
+                GameStateOutput newState = currItem;
+
+                return score.Match(x =>
+                {
+                    return new GameStateOutput
+                    (
+                        currItem.Index,
+                        currItem.ActualScore,
+                        currItem.BetScore,
+                        currItem.ScorePredictions.Select(p => (p.Value.Name, p.Value.Score))
+                            .Append((Constants.SameDiffPredictionName, x))
+                    );
+                }, () => currItem);
+            }
         }
     }
 }

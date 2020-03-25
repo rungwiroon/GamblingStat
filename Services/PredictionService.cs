@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using static LanguageExt.Prelude;
+using System.Reactive.Linq;
 
 namespace GamblingStat.Services
 {
@@ -22,28 +23,39 @@ namespace GamblingStat.Services
             _resultPredictor = resultPredcitor;
         }
 
-        public GameStateOutputGroup Predict(
-            IEnumerable<GameStateInput> scores, 
+        public IObservable<GameStateOutputGroup> Predict(
+            IObservable<GameStateInput> scores,
             int tableSize,
-            int scorePredictorLookBehide,
-            int predictionLimit = int.MaxValue)
+            int scorePredictorLookBehide)
         {
             var scoresWithNextScore = scores
-                .Skip(scores.Count() - scorePredictorLookBehide)
+                //.TakeLast(scorePredictorLookBehide)
+                //.Skip(scores.Count() - scorePredictorLookBehide)
                 .Append(new GameStateInput(None, None));
 
-            var scoreResult = Enumerable.Range(0, (int)Math.Pow(2, tableSize - 1))
-                .Select(x => (gs: PredictScore3(scoresWithNextScore, MapToScores(x, tableSize)), mv: x))
-                .Select(x => (gameState: x.gs, stat: StatService.Calculate(x.gs.Where(gs => gs.ActualScore.IsSome), x.mv)));
+            var scorePredictionResult1 = Enumerable.Range(0, (int)Math.Pow(2, tableSize - 1))
+                .Select(mappingValue =>
+                {
+                    var gameState = PredictScore3(scoresWithNextScore, MapToScores(mappingValue, tableSize));
+                    var statService = new StatService();
+                    var stat = statService.Calculate(gameState, mappingValue);
 
-            var resultResult = PredictResult(scores);
+                    return Observable.Zip(gameState, stat, (gs, s) =>  (gameState: gs, stat: s));
+                });
 
-            return new GameStateOutputGroup(
-                scoreResult.Select(r => new GameStateOutputDetail(r.gameState, r.stat)),
-                resultResult);
+            var scorePredictionResult2 = Observable.Zip(scorePredictionResult1);
+            var resultPredictionResult = PredictResult(scores);
+
+            return Observable.Zip(
+                scorePredictionResult2, 
+                resultPredictionResult, 
+                (spr, rpr) =>
+                    new GameStateOutputGroup(
+                        spr.Select(r => new GameStateOutputDetail(r.gameState, r.stat)),
+                        rpr));
         }
 
-        public IEnumerable<GameStateOutput> PredictScore(IEnumerable<GameStateInput> gameStates, IEnumerable<Score> mappingScores)
+        public IObservable<GameStateOutput> PredictScore(IObservable<GameStateInput> gameStates, IEnumerable<Score> mappingScores)
         {
             var scoresWithNextScore = gameStates
                 .Append(new GameStateInput(None, None));
@@ -51,23 +63,29 @@ namespace GamblingStat.Services
             return PredictScore3(scoresWithNextScore, mappingScores);
         }
 
-        public IEnumerable<GameStateOutput> PredictScore(IEnumerable<GameStateInput> gameStates, int mappingValue, int tableSize)
+        public IObservable<GameStateOutput> PredictScore(IObservable<GameStateInput> gameStates, int mappingValue, int tableSize)
         {
             var scoresWithNextScore = gameStates.Append(new GameStateInput(None, None));
 
             return PredictScore3(scoresWithNextScore, MapToScores(mappingValue, tableSize));
         }
 
-        private IEnumerable<GameStateOutput> PredictScore3(IEnumerable<GameStateInput> gameStates, IEnumerable<Score> mappingScores)
+        private IObservable<GameStateOutput> PredictScore3(IObservable<GameStateInput> gameStates, IEnumerable<Score> mappingScores)
         {
             var infMappingScores = InfiniteScores(mappingScores);
-            var result1 = gameStates.Zip(infMappingScores, (x, y) => (gameState: x, predictScore: y))
-                .Select((p, index) => new GameStateOutput(index, p.gameState.ActualScore, p.gameState.BetScore,
+            var result1 = gameStates.Zip(infMappingScores, (x, y) => new { gameState = x, predictScore = y })
+                .Select((p, index) => new GameStateOutput(
+                    index, 
+                    p.gameState.ActualScore, 
+                    p.gameState.BetScore,
                     CreateMappingTablePrediction(p.predictScore)));
 
-            var result2 = _predictors.Aggregate(result1, (items, p) => items.Select((gs, i) => p.Predict(items, gs.Index)).ToList());
+            foreach(var predictor in _predictors)
+            {
+                result1 = predictor.Predict(result1);
+            }
 
-            return result2;
+            return result1;
         }
 
         private IEnumerable<(string, Score)> CreateMappingTablePrediction(Option<Score> score)
@@ -76,24 +94,19 @@ namespace GamblingStat.Services
                 new (string, Score)[]
                     {
                         (
-                            Constants.MappingTablePredctionName,
+                            Constants.MappingTablePredictionName,
                             s
                         )
                     }
                 , () => new (string, Score)[0]);
         }
 
-        private IEnumerable<GameStateOutput> PredictResult(IEnumerable<GameStateInput> scores)
+        private IObservable<GameStateOutput> PredictResult(IObservable<GameStateInput> scores)
         {
-            var outputs = scores.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore)).ToList();
+            var outputs1 = scores.Select((x, i) => new GameStateOutput(i, x.ActualScore, x.BetScore));
+            var outputs2 = _resultPredictor.Predict(outputs1);
 
-            for (int i = 0; i < outputs.Count; i++)
-            {
-                var output = _resultPredictor.Predict(outputs, i);
-                outputs[i] = output;
-            }
-
-            return outputs;
+            return outputs2;
         }
 
         private Score[] MapToScores(int number, int digit)

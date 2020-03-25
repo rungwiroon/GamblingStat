@@ -2,65 +2,78 @@
 using GamblingStat.Services.Domain;
 using GamblingStat.Services.Predictors;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Reactive.Linq;
 
 namespace GamblingStat.Services
 {
     public class StatService
     {
-        public static Stat Calculate(IEnumerable<GameStateOutput> gameStates, int mappingValue)
+        private Lst<(int lastIndex, int wrongCount)> wrongList = new Lst<(int lastIndex, int wrongCount)>(
+            new (int, int)[] { (int.MinValue, 0) });
+
+        public IObservable<Stat> Calculate(IObservable<GameStateOutput> gameStates, int mappingValue)
         {
-            var predictionStats = Constants.AllPredictionNames
-                .Select(pn => (name: pn, results: Filter(gameStates.Select(gs => gs.ScorePredictions.Find(pn).Bind(p => p.Result)))))
-                .Select(pr => Calculate(pr.name, pr.results));
+            var predictionStats1 = Constants.AllPredictionNames
+                .Select(predictionName => gameStates
+                    .Select(gameState => (
+                        seqNumber: gameState.Index, 
+                        name: predictionName, 
+                        result: gameState.ScorePredictions.Find(predictionName).Bind(p => p.Result).IfNone(Result.Lose)))
+                    .Scan(Option<PredictionStat>.None, (acc, pr) => Calculate(acc, pr.name, pr.seqNumber, pr.result))
+                    .Select(ps => ps.IfNoneUnsafe((PredictionStat)null)));
 
-            return new Stat(mappingValue, predictionStats);
+            var predictionStats2 = Observable.Zip(predictionStats1)
+                .Select(val => new Stat(mappingValue, val));
 
-            IEnumerable<Result> Filter(IEnumerable<Option<Result>> rs)
-            {
-                return rs
-                    .Where(r => r.IsSome)
-                    .Select(r => r.IfNone(Result.Lose));
-            }
+            return predictionStats2;
         }
 
-        public static PredictionStat Calculate(string name, IEnumerable<Result> results)
+        public PredictionStat Calculate(Option<PredictionStat> lastPredictionStat, string name, int seqNumber, Result newResult)
         {
-            var winRate = (int)(results
-                .Sum(r => r == Result.Win ? 1 : 0)
-                / (float)results.Count() * 100);
+            return lastPredictionStat
+                .Match(
+                    Some: val =>
+                    {
+                        var winRate = (val.WinRate + newResult == Result.Win ? 100f : 0f) / 2;
 
-            var wrongList = new List<(int lastIndex, int wrongCount)>()
+                        wrongList = UpdateLoseStat(newResult);
+
+                        return new PredictionStat(
+                                name,
+                                (int)winRate,
+                                wrongList.Where(wc => wc.wrongCount == 1).Count(),
+                                wrongList.Where(wc => wc.wrongCount == 2).Count(),
+                                wrongList.Where(wc => wc.wrongCount > 2).Count(),
+                                wrongList.Max(wc => wc.wrongCount));
+                    },
+                    None: () =>
+                    {
+                        wrongList = UpdateLoseStat(newResult);
+
+                        return new PredictionStat(
+                                name,
+                                newResult == Result.Win ? 100 : 0,
+                                wrongList.Where(wc => wc.wrongCount == 1).Count(),
+                                0,
+                                0,
+                                wrongList.Max(wc => wc.wrongCount));
+                    });
+
+            Lst<(int lastIndex, int wrongCount)> UpdateLoseStat(Result newResult)
             {
-                (int.MinValue, 0)
-            };
-
-            var wrongCount = results
-                .Select((r, i) => new { Result = r, Index = i })
-                .Where(r => r.Result == Result.Lose)
-                .Aggregate(wrongList, (acc, res) =>
+                if (newResult == Result.Lose)
                 {
-                    if(res.Index - acc.Last().lastIndex > 1)
-                    {
-                        acc.Add((res.Index, 1));
-                    }
+                    var (lastIndex, wrongCount) = wrongList.Last();
+
+                    if (seqNumber - lastIndex > 1)
+                        return wrongList.Add((seqNumber, 1));
                     else
-                    {
-                        acc.Add((res.Index, acc.Last().wrongCount + 1));
-                    }
+                        return wrongList.Add((seqNumber, wrongCount + 1));
+                }
 
-                    return acc;
-                });
-
-            return new PredictionStat(
-                name,
-                winRate, 
-                wrongCount.Where(wc => wc.wrongCount == 1).Count(),
-                wrongCount.Where(wc => wc.wrongCount == 2).Count(),
-                wrongCount.Where(wc => wc.wrongCount > 2).Count(),
-                wrongCount.Max(wc => wc.wrongCount));
+                return wrongList;
+            }
         }
     }
 }

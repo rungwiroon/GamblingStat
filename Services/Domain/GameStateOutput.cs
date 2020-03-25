@@ -2,17 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GamblingStat.Services.Domain
 {
     public class GameStateOutput : GameStateInput
     {
-        private Func<bool, Result> resultMapper => b => b ? Result.Win : Result.Lose;
+        private Func<bool, Result> ResultMapper => b => b ? Result.Win : Result.Lose;
 
         public int Index { get; private set; }
-
-        //public Option<Result> PredictionResult { get; private set; }
 
         public Map<string, PredictionScore> ScorePredictions { get; private set; }
 
@@ -25,19 +22,6 @@ namespace GamblingStat.Services.Domain
             ActualScore = actualScore;
             BetScore = betScore;
         }
-        
-        //public GameStateOutput(int index, Option<Score> actualScore, Option<Score> betScore, Option<Score> mappingTableScore)
-        //    : this(index, actualScore, betScore)
-        //{
-        //    var prediction = mappingTableScore.Map(x =>
-        //    (
-        //        Constants.MappingTablePredctionName,
-        //        new PredictionScore(
-        //            Constants.MappingTablePredctionName, x, ActualScore.Map(s => resultMapper(s == ActualScore)))
-        //    ));
-
-        //    ScorePredictions = new Map<string, PredictionScore>(prediction);
-        //}
 
         public GameStateOutput(
             int index,
@@ -48,7 +32,7 @@ namespace GamblingStat.Services.Domain
         {
             var predictions = ScorePredictions.Select(x => x.Value)
                 .Concat(predictionScores.Select(ps => 
-                    new PredictionScore(ps.name, ps.score, ActualScore.Map(s => resultMapper(ps.score == s)))));
+                    new PredictionScore(ps.name, ps.score, ActualScore.Map(s => ResultMapper(ps.score == s)))));
 
             ScorePredictions = new Map<string, PredictionScore>(predictions.Select(p => (p.Name, p)));
         }
@@ -68,7 +52,6 @@ namespace GamblingStat.Services.Domain
 
         public override string ToString()
         {
-            //var text = $"{ActualScore}, {MappingTablePredictScore}";
             var predictions = ScorePredictions.Select(x => x.ToString());
 
             var text = string.Join(", ", predictions);

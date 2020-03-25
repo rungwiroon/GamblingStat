@@ -1,33 +1,35 @@
-﻿using System;
+﻿using LanguageExt;
+using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Text;
 
 namespace GamblingStat.Services.Domain
 {
     public class GameStateOutputGroup
     {
-        public IEnumerable<GameStateOutputDetail> GameStatesWithScorePrediction { get; private set; }
-        public IEnumerable<GameStateOutput> GameStatesWithResultPrediction { get; private set; }
+        public IEnumerable<GameStateOutputDetail> GameStateWithScorePredictions { get; private set; }
+        public GameStateOutput GameStateWithResultPrediction { get; private set; }
 
         public GameStateOutputGroup(
-            IEnumerable<GameStateOutputDetail> gameStatesWithScorePrediction,
-            IEnumerable<GameStateOutput> gameStatesWithResultPrediction)
+            IEnumerable<GameStateOutputDetail> gameStateWithScorePredictions,
+            GameStateOutput gameStateWithResultPrediction)
         {
-            GameStatesWithScorePrediction = gameStatesWithScorePrediction;
-            GameStatesWithResultPrediction = gameStatesWithResultPrediction;
+            GameStateWithScorePredictions = gameStateWithScorePredictions;
+            GameStateWithResultPrediction = gameStateWithResultPrediction;
         }
     }
 
     public class GameStateOutputDetail
     {
-        public IEnumerable<GameStateOutput> GameStates { get; private set; }
-        public Stat Stat { get; private set; }
+        public GameStateOutput GameState { get; private set; }
+        public Option<Stat> Stat { get; private set; }
 
         public GameStateOutputDetail(
-            IEnumerable<GameStateOutput> gameStates,
-            Stat stat)
+            GameStateOutput gameState,
+            Option<Stat> stat)
         {
-            GameStates = gameStates;
+            GameState = gameState;
             Stat = stat;
         }
     }
