@@ -32,13 +32,8 @@ So I decided to implement it with many new frameworks and libraries, that I've n
   * EF Core
 * NoSQL
   * MongoDB
-  * ElasticSearch
 * Language-ext
   * Curry Function
   * Partial Application
 * GUI
   * .net core 3.0
-* Machine learning
-  * ML.net
-* Other language
-  * Kotlin
